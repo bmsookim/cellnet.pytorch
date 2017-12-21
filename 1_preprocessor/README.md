@@ -37,7 +37,8 @@ $ python main.py
 # Mode 4 'split' : Create a train-validation split of data
 # Mode 5 'count' : Check the distribution of raw data
 # Mode 6 'check' : Check the distribution of train/val split
-# Mode 6 'exit'  : Terminate the program
+# Mode 7 'aug'   : Augment the training data sample
+# Mode 8 'exit'  : Terminate the program
 ##########################################################
 
 Enter mode name : 
@@ -104,22 +105,90 @@ You should manually set how much validation sets you want in your val class in v
 ```bash
 Enter mode name : count
 ```
-This will check how your data directory is consisted.
-An example for the file directory after running module 4 (split) is as below.
+This will count the number of images within each sub-categories in the data.
+An example for the file directory after running module 5 (count) is as below.
 ```bash
-$ python main check
+$ Enter mode name : count
 
-| train set : 
-    | false-positive   3345
-    | true-positive    2547
-| val set : 
-    | false-positive    100
-    | true-positive     100
+| CELL_PATCHES dataset : 
+        | RBC_Target        157
+        | WBC_Neutrophil_Band   200
+        | RBC_Elliptocyte    78
+        | RBC_Echinocyte    284
+        | WBC_Neutrophil_Segmented   168
+        | RBC_TearDrop       17
+        | WBC_Basophil      118
+        | WBC_Monocyte      115
+        | RBC_Spherocyte    210
+        | WBC_Eosinophil     75
+        | WBC_Metamyelocyte   221
+        | WBC_Smudge        122
+        | RBC_Stomatocyte    44
+        | WBC_Myelocyte     149
+        | RBC_Acanthocyte   214
+        | RBC_Schistocyte    75
+        | WBC_Lymphocyte_atypical   114
+        | WBC_Lymphocyte    127
+        | RBC_Normal        168
 ```
 
-## 6. augmentation
+## 6. check
 ```bash
-python main aug
+Enter mode name : check
+```
+This will check how your train/validation split is consisted.
+An example for the file directory after running module 4 (split) is as below.
+```bash
+$ Enter mode name : check
+
+| train set : 
+        | RBC_Target        147
+        | WBC_Neutrophil_Band   190
+        | RBC_Elliptocyte    68
+        | RBC_Echinocyte    274
+        | WBC_Neutrophil_Segmented   158
+        | RBC_TearDrop        7
+        | WBC_Basophil      108
+        | WBC_Monocyte      105
+        | RBC_Spherocyte    200
+        | WBC_Eosinophil     65
+        | WBC_Metamyelocyte   211
+        | WBC_Smudge        112
+        | RBC_Stomatocyte    34
+        | WBC_Myelocyte     139
+        | RBC_Acanthocyte   204
+        | RBC_Schistocyte    65
+        | WBC_Lymphocyte_atypical   104
+        | WBC_Lymphocyte    117
+        | RBC_Normal        158
+| val set : 
+        | RBC_Target         10
+        | WBC_Neutrophil_Band    10
+        | RBC_Elliptocyte    10
+        | RBC_Echinocyte     10
+        | WBC_Neutrophil_Segmented    10
+        | RBC_TearDrop       10
+        | WBC_Basophil       10
+        | WBC_Monocyte       10
+        | RBC_Spherocyte     10
+        | WBC_Eosinophil     10
+        | WBC_Metamyelocyte    10
+        | WBC_Smudge         10
+        | RBC_Stomatocyte    10
+        | WBC_Myelocyte      10
+        | RBC_Acanthocyte    10
+        | RBC_Schistocyte    10
+        | WBC_Lymphocyte_atypical    10
+        | WBC_Lymphocyte     10
+        | RBC_Normal         10
+
+```
+
+## 7. augmentation
+```bash
+Enter mode name : aug
 ```
 This module will apply various image augmentations and enlarge your training set.
 The input should be the splitted directory after running module 4 (split)
+
+

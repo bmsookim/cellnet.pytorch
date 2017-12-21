@@ -13,7 +13,8 @@ def print_menu():
     print("# Mode 4 'split' : Create a train-validation split of data")
     print("# Mode 5 'count' : Check the distribution of raw data")
     print("# Mode 6 'check' : Check the distribution of train/val split")
-    print("# Mode 6 'exit'  : Terminate the program")
+    print("# Mode 7 'aug'   : Augment the training data samples")
+    print("# Mode 8 'exit'  : Terminate the program")
     print("##########################################################")
 
 
