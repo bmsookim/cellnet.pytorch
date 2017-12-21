@@ -7,11 +7,11 @@ You can see the paper [here]()
 
 ![alt_tag](./imgs/pytorch.jpg)
 
-# Differential Blood Cell Count, Why is it important?
+## Differential Blood Cell Count, Why is it important?
 [TD] Description about the task of blood cell differential counting.
 [TD] Supporting details for the essentiality of blood cell counting.
 
-# Previous works of Blood Cell Counting.
+## Previous works of Blood Cell Counting.
 [TD] Research of papers for previous studies or repository for previous blood cell classification modules.
 
 ## CellNet, Full Pipeline cell detection counter

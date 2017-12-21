@@ -24,32 +24,51 @@ The input directory should be in the given format:
 
 ```
 
+# Menu Options
+If you run the program, you will meet a menu script that will help you through various processes.
+
+```bash
+$ python main.py
+
+################## [ Options ] ###########################
+# Mode 1 'print' : Print names of image data file
+# Mode 2 'read'  : [original/aug] Read names data
+# Mode 3 'resize': [target_size]  Resize & Orgnaize data
+# Mode 4 'split' : Create a train-validation split of data
+# Mode 5 'count' : Check the distribution of raw data
+# Mode 6 'check' : Check the distribution of train/val split
+# Mode 6 'exit'  : Terminate the program
+##########################################################
+
+Enter mode name : 
+
+```
+
+If you enter the mode name in the given line, the code will run the function that has been typed.
+
 # Modules
 
 ## 1. print
 ```bash
-python main print
+Enter mode name : print
 ```
 This module will print all the the file names of image related file formats(".jpg", ".png")
 
 ## 2. read
 ```bash
-python main read
+Enter mode name : read
 ```
 This module will read all the images and print out the spacial dimension of image related files.
 
 ## 3. resize
 ```bash
-python main resize [:len]
-
-# Example, to consist 256x256 images
-python main resize 256
+Enter mode name : resize
 ```
 This module will save all the resized images into your given directory
 
 ## 4. split
 ```bash
-python main split
+Enter mode name : split
 ```
 This module will organize your input file directory into the following format.
 You should manually set how much validation sets you want in your val class in val_num from [config.py](./config.py).
@@ -81,9 +100,9 @@ You should manually set how much validation sets you want in your val class in v
 
 ```
 
-## 5. check
+## 5. count
 ```bash
-python main check
+Enter mode name : count
 ```
 This will check how your data directory is consisted.
 An example for the file directory after running module 4 (split) is as below.
