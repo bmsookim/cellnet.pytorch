@@ -1,11 +1,11 @@
+<img align="center" src="./imgs/pytorch.png">
+
 cellnet.pytorch
 =====================================================================================================
 Repository for Pytorch Implementation of Cell Network 2018
 MICCAI-2018
 
 You can see the paper [here]()
-
-![alt_tag](./imgs/pytorch.png)
 
 ## Differential Blood Cell Count, Why is it important?
 ![alt_tag](./imgs/cell.jpg)
