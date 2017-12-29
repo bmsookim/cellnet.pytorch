@@ -100,8 +100,8 @@ ENV/
 # mypy
 .mypy_cache/
 
-# Image files
-*.png
+# results
+*/results/*
 
 # Checkpoints & logs
 *.t7
