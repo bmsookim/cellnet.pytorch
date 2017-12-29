@@ -5,7 +5,7 @@ MICCAI-2018
 
 You can see the paper [here]()
 
-![alt_tag](./imgs/pytorch.jpg)
+![alt_tag](./imgs/pytorch.png)
 
 ## Differential Blood Cell Count, Why is it important?
 ![alt_tag](./imgs/cell.jpg)
