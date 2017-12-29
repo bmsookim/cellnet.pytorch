@@ -1,4 +1,6 @@
-<img align="center" src="./imgs/pytorch.png">
+<p align="center">
+    <img src="./imgs/pytorch.png">
+</p>
 
 cellnet.pytorch
 =====================================================================================================
