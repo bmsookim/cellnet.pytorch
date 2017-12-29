@@ -13,7 +13,7 @@ You can see the paper [here]()
 A complete blood count(CBC) is a test that measures the cells that make up your blood: red blood cells, white blood cells, and platelets.
 
 ### Red Blood Cell Count
-![alt_tag](./imgs/RBC.png)
+![alt_tag](./imgs/RBC.jpg)
 
 A red blood cell count(also known as the erythrocyte count) is a blood test to find out how many red blood cells(RBCs) you have.
 
