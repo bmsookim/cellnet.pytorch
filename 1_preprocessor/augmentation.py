@@ -1,3 +1,15 @@
+# ************************************************************
+# Author : Bumsoo Kim, 2017
+# Github : https://github.com/meliketoy/cellnet.pytorch
+#
+# Korea University, Data-Mining Lab
+# Deep Convolutional Network Fine tuning Implementation
+#
+# Module : 1_preprocessor
+# Description : augmentation.py
+# The code for image augmentation.
+# ***********************************************************
+
 import cv2
 import os
 import numpy as np

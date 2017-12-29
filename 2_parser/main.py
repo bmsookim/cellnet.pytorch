@@ -1,3 +1,15 @@
+# ************************************************************
+# Author : Bumsoo Kim, 2017
+# Github : https://github.com/meliketoy/cellnet.pytorch
+#
+# Korea University, Data-Mining Lab
+# Deep Convolutional Network Fine tuning Implementation
+#
+# Module : 2_parser
+# Description : main.py
+# The main code for bounding box data handling.
+# ***********************************************************
+
 import cv2
 import os
 import sys

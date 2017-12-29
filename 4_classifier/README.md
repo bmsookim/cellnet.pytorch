@@ -67,18 +67,19 @@ python main.py --finetune --addlayer --lr [:lr] --depth [:depth]
 
 ## Train various networks
 
-I have added fine-tuning & transfer learning script for alexnet, VGG(11, 13, 16, 19),
-ResNet(18, 34, 50, 101, 152).
+Supporting networks
+- AlexNet
+- VGGNet
+- ResNet
+- DenseNet
 
 Please modify the [scripts](./train) and run the line below.
 
 ```bash
-
 $ ./train/[:network].sh 
 
-# For example, if you want to pretrain alexnet, just run
+# For example, if you want to pretrain alexnet, run the code below.
 $ ./train/alexnet.sh
-
 ```
 
 ## Test (Inference) various networks
@@ -137,5 +138,3 @@ pickle_file [name : image base name]
     |- 'features'  : extracted feature vector
     |- 'score'     : Score for binary classification
 ```
-
-E

@@ -1,3 +1,15 @@
+# ************************************************************
+# Author : Bumsoo Kim, 2017
+# Github : https://github.com/meliketoy/cellnet.pytorch
+#
+# Korea University, Data-Mining Lab
+# Deep Convolutional Network Fine tuning Implementation
+#
+# Module : 2_parser
+# Description : XML_function.py
+# The function code for XML file format handling.
+# ***********************************************************
+
 import os
 import cv2
 import sys

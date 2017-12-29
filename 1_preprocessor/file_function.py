@@ -1,3 +1,15 @@
+# ************************************************************
+# Author : Bumsoo Kim, 2017
+# Github : https://github.com/meliketoy/cellnet.pytorch
+#
+# Korea University, Data-Mining Lab
+# Deep Convolutional Network Fine tuning Implementation
+#
+# Module : 1_preprocessor
+# Description : file_function.py
+# The function codes for file management.
+# ***********************************************************
+
 import os
 import cv2
 import sys

@@ -102,3 +102,7 @@ ENV/
 
 # Image files
 *.png
+
+# Checkpoints & logs
+*.t7
+*.csv
