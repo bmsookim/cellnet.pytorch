@@ -8,8 +8,7 @@ MICCAI-2018
 You can see the paper [here]()
 
 ## Differential Blood Cell Count, Why is it important?
-<p align="left"><img width="40%" src="./imgs/input.png"></p>
-<p align="right"><img width="40%" src="./imgs/result.png"></p>
+[TODO : CBC image]
 
 A complete blood count(CBC) is a test that measures the cells that make up your blood: red blood cells, white blood cells, and platelets.
 
