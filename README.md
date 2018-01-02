@@ -3,11 +3,23 @@
 -------------------------------------------------------------------------------------
 
 This is the repository for Pytorch Implementation of the
-MICCAI-2018 paper, "Non-guided Automatic Blood Cell Detection via Deep CNN".
+MICCAI-2018 paper, "Non-guided Automatic Blood Cell Counter with Deep Convolutional Neural Networks".
+If you have any issues regarding this repository or the paper, please contact meliketoy@gmail.com.
 
-Author : Bumsoo Kim
+Authors
+- Bumsoo Kim
+- Junhyeon Lee
+- Hyunjoo Choi
+- Chaesung Lim
+- Jaewoo Kang
 
 You can see the paper [here]().
+
+## Modules
+- [#1 Preprocessor](./1_preprocessor)
+- [#2 Parser](./2_parser)
+- [#3 Detector](./3_detector)
+- [#4 Classifier](./4_classifier)
 
 ## Differential Blood Cell Count, Why is it important?
 [TODO : CBC image]
@@ -42,9 +54,3 @@ This test also helps doctor monitor the effectiveness of chemotheraphy or radiat
 
 ## CellNet, Full Pipeline cell detection counter
 [TD] Description for the cell detection counter model.
-
-## Modules
-- [#1 Preprocessor](./1_preprocessor)
-- [#2 Parser](./2_parser)
-- [#3 Detector](./3_detector)
-- [#4 Classifier](./4_classifier)

@@ -31,12 +31,8 @@ from PIL import Image
 import pickle
 
 parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Training')
-parser.add_argument('--lr', default=1e-3, type=float, help='learning_rate')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
-parser.add_argument('--finetune', '-f', action='store_true', help='Fine tune pretrained model')
-parser.add_argument('--addlayer','-a',action='store_true', help='Add additional layer in fine-tuning')
-parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
 args = parser.parse_args()
 
 # Phase 1 : Data Upload
@@ -53,16 +49,14 @@ print('\n[Phase 2] : Model setup')
 
 def getNetwork(args):
     if (args.net_type == 'vggnet'):
-        net = VGG(args.finetune, args.depth)
         file_name = 'vgg-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
-        net = resnet(args.finetune, args.depth)
         file_name = 'resnet-%s' %(args.depth)
     else:
         print('Error : Network should be either [VGGNet / ResNet]')
         sys.exit(1)
 
-    return net, file_name
+    return file_name
 
 def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
@@ -70,7 +64,8 @@ def softmax(x):
 print("| Loading checkpoint model for feature extraction...")
 assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
 assert os.path.isdir('checkpoint/'+trainset_dir), 'Error: No model has been trained on the dataset!'
-_, file_name = getNetwork(args)
+
+file_name = getNetwork(args)
 checkpoint = torch.load('./checkpoint/'+trainset_dir+file_name+'.t7')
 model = checkpoint['model']
 
