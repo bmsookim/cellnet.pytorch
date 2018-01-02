@@ -1,17 +1,14 @@
-<p align="center">
-    <img src="./imgs/pytorch.png">
-</p>
+<p align="center"><img width="40%" src="./imgs/pytorch.png"></p>
+-----------------------------------------------------------------------------------------------------
 
-cellnet.pytorch
-=====================================================================================================
 Repository for Pytorch Implementation of Cell Network 2018
 MICCAI-2018
 
 You can see the paper [here]()
 
 ## Differential Blood Cell Count, Why is it important?
-![alt_tag](./imgs/cell.jpg)
-![alt_tag](./imgs/complete_count.jpg)
+![alt_tag](./imgs/input.png)
+![alt_tag](./imgs/result.png)
 
 A complete blood count(CBC) is a test that measures the cells that make up your blood: red blood cells, white blood cells, and platelets.
 
