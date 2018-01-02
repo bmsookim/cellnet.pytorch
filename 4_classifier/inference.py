@@ -35,52 +35,42 @@ parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Traini
 parser.add_argument('--lr', default=1e-3, type=float, help='learning_rate')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
-parser.add_argument('--finetune', '-f', action='store_true', help='Fine tune pretrained model')
-parser.add_argument('--addlayer','-a',action='store_true', help='Add additional layer in fine-tuning')
 args = parser.parse_args()
 
 # Phase 1 : Data Upload
 print('\n[Phase 1] : Data Preperation')
 
-data_dir = cf.test_dir
+data_dir = cf.test_base
 trainset_dir = cf.data_base.split("/")[-1] + os.sep
-print("| Preparing %s dataset..." %(cf.test_dir.split("/")[-1]))
+print("| Preparing %s dataset..." %(cf.test_base.split("/")[-1]))
 
 use_gpu = torch.cuda.is_available()
 
 dsets = datasets.ImageFolder(data_dir, None)
+
+# Set the classes of labels
 H = datasets.ImageFolder(os.path.join(cf.aug_base, 'train'))
 dset_classes = H.classes
-#dset_classes = ['WBC_Neutrophil_Band', 'WBC_Neutrophil_Segmented']
-#dset_classes = ['WBC_Lymphocyte', 'WBC_Lymphocyte_atypical', 'WBC_Monocyte']
 
-print(dset_classes)
+print("| Inferencing for %d classes" %len(dset_classes))
 
 # Phase 2 : Model setup
 print('\n[Phase 2] : Model setup')
 
 def getNetwork(args):
     if (args.net_type == 'alexnet'):
-        net = models.alexnet(pretrained=args.finetune)
         file_name = 'alexnet'
     elif (args.net_type == 'vggnet'):
-        if(args.depth == 16):
-            net = models.vgg16(pretrained=args.finetune)
         file_name = 'vgg-%s' %(args.depth)
     elif (args.net_type == 'densenet'):
-        if(args.depth == 121):
-            net = models.densenet121(pretrained=args.finetune)
-        elif(args.depth == 161):
-            net = models.densenet161(pretrained=args.finetune)
         file_name = 'densenet-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
-        net = resnet(args.finetune, args.depth)
         file_name = 'resnet-%s' %(args.depth)
     else:
         print('Error : Network should be either [VGGNet / ResNet]')
         sys.exit(1)
 
-    return net, file_name
+    return file_name
 
 def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
@@ -88,7 +78,7 @@ def softmax(x):
 print("| Loading checkpoint model for inference phase...")
 assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
 assert os.path.isdir('checkpoint/'+trainset_dir), 'Error: No model has been trained on the dataset!'
-_, file_name = getNetwork(args)
+file_name = getNetwork(args)
 checkpoint = torch.load('./checkpoint/'+trainset_dir+file_name+'.t7')
 model = checkpoint['model']
 
@@ -117,13 +107,13 @@ test_transform = transforms.Compose([
 if not os.path.isdir('result'):
     os.mkdir('result')
 
-output_file = "./result/"+cf.test_dir.split("/")[-1]+".csv"
+output_file = "./result/"+cf.test_base.split("/")[-1]+"_inference.csv"
 
 with open(output_file, 'wb') as csvfile:
     fields = ['file_name', 'prediction']
     writer = csv.DictWriter(csvfile, fieldnames=fields)
     for subdir, dirs, files in os.walk(data_dir):
-        cor = 0
+        cor = 0 # number of correct answers
         tot = 0
         for f in files:
             file_path = subdir + os.sep + f
@@ -144,10 +134,8 @@ with open(output_file, 'wb') as csvfile:
 
                 # print(file_path + "," + str(score))
                 if (file_path.split("/")[-2] != dset_classes[index]):
-                    print(file_path + "\t" + str(dset_classes[index]) + "\t" + str(score))
+                    print(file_path + "\t" + str(dset_classes[index]) + "\t" + str(score)) # print wrong answers.
                 else:
                     cor += 1
 
                 writer.writerow({'file_name': file_path, 'prediction':dset_classes[index]}); tot += 1
-
-        print(cor, tot)

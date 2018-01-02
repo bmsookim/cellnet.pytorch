@@ -2,10 +2,13 @@
 
 # Base directory for data formats
 name = 'CELL_PATCHES'
-test_dir = '/home/bumsoo/Data/test/cell_test'
+data_dir = '/home/mnt/datasets/'
+aug_dir = '/home/bumsoo/Data/split/'
+test_dir = '/home/bumsoo/Data/test/'
 
-data_base = '/home/mnt/datasets/'+name
-aug_base = '/home/bumsoo/Data/split/'+name
+data_base = data_dir + name
+aug_base = aug_dir + name
+test_base = test_dir + name
 
 # model option
 batch_size = 16

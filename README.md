@@ -2,10 +2,12 @@
 
 -------------------------------------------------------------------------------------
 
-Repository for Pytorch Implementation of Cell Network 2018
-MICCAI-2018
+This is the repository for Pytorch Implementation of the
+MICCAI-2018 paper, "Non-guided Automatic Blood Cell Detection via Deep CNN".
 
-You can see the paper [here]()
+Author : Bumsoo Kim
+
+You can see the paper [here]().
 
 ## Differential Blood Cell Count, Why is it important?
 [TODO : CBC image]
@@ -15,7 +17,7 @@ A complete blood count(CBC) is a test that measures the cells that make up your 
 Out of the 3 tests, in this paper we mainly focus on the RBC cell count and WBC cell count. Details and specifics of each will be described below.
 
 ### Red Blood Cell Count
-<p align="left"><img width="50%" src="./imgs/RBC.jpg"></p>
+[TODO : Show the classes of RBC that could appear within the image]
 
 A red blood cell count(also known as the erythrocyte count) is a blood test to find out how many red blood cells(RBCs) you have.
 
@@ -24,7 +26,7 @@ It is important because RBCs contain hemoglobin, which carries oxygen to your bo
 Having higher number of RBCs might indicate symptoms such as polycythemia, while decreased number of RBCs can lead to diagnosis of anemia.
 
 ### White Blood Cell Count
-<p align="left"><img width="50%" src="./imgs/WBC.jpg"></p>
+[TODO : Show the classes of WBC that could appear within the image]
 
 A white blood cell count(also known as the leukocyte count) is a test that measures the number of white blood cells in your body. There are several types of white blood cells, and your blood usually contains a percentage of each type.
 
