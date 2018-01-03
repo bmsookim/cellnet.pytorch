@@ -8,7 +8,7 @@ If you have any issues regarding this repository or the paper, please contact me
 
 Authors
 - Bumsoo Kim
-- Junhyeon Lee
+- Junhyun Lee
 - Hyunjoo Choi
 - Chaesung Lim
 - Jaewoo Kang
@@ -20,6 +20,20 @@ You can see the paper [here]().
 - [#2 Parser](./2_parser)
 - [#3 Detector](./3_detector)
 - [#4 Classifier](./4_classifier)
+
+## Requirements
+See the [installation instruction](INSTALL.md) for a step-by-step installation guide.
+See the [server instruction](SERVER.md) for server settup.
+- Install [cuda-8.0](https://developer.nvidia.com/cuda-downloads)
+- Install [cudnn v5.1](https://developer.nvidia.com/cudnn)
+- Download [Pytorch for python-2.7](https://pytorch.org) and clone the repository.
+- Enjoy!
+
+```bash
+pip install http://download.pytorch.org/whl/cu80/torch-0.1.12.post2-cp27-none-linux_x86_64.whl
+pip install torchvision
+git clone https://github.com/meliketoy/cellnet-pytorch
+```
 
 ## Differential Blood Cell Count, Why is it important?
 [TODO : CBC image]

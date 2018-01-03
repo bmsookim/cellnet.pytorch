@@ -31,8 +31,7 @@ from networks import *
 from torch.autograd import Variable
 from PIL import Image
 
-parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Training')
-parser.add_argument('--lr', default=1e-3, type=float, help='learning_rate')
+parser = argparse.ArgumentParser(description='Pytorch Cell Classifier Training')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
 args = parser.parse_args()
@@ -67,7 +66,7 @@ def getNetwork(args):
     elif (args.net_type == 'resnet'):
         file_name = 'resnet-%s' %(args.depth)
     else:
-        print('Error : Network should be either [VGGNet / ResNet]')
+        print('[Error]: Network should be either [alexnet / vggnet / resnet]')
         sys.exit(1)
 
     return file_name
@@ -76,8 +75,8 @@ def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 print("| Loading checkpoint model for inference phase...")
-assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
-assert os.path.isdir('checkpoint/'+trainset_dir), 'Error: No model has been trained on the dataset!'
+assert os.path.isdir('checkpoint'), '[Error]: No checkpoint directory found!'
+assert os.path.isdir('checkpoint/'+trainset_dir), '[Error]: No model has been trained on the dataset!'
 file_name = getNetwork(args)
 checkpoint = torch.load('./checkpoint/'+trainset_dir+file_name+'.t7')
 model = checkpoint['model']

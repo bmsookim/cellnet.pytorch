@@ -7,21 +7,9 @@ In practice, very few people train an entire Convolutional Network from scratch 
 
 Futher explanations can be found [here](http://cs231n.github.io/transfer-learning/).
 
-## Requirements
-See the [installation instruction](INSTALL.md) for a step-by-step installation guide.
-See the [server instruction](SERVER.md) for server settup.
-- Install [cuda-8.0](https://developer.nvidia.com/cuda-downloads)
-- Install [cudnn v5.1](https://developer.nvidia.com/cudnn)
-- Download [Pytorch for python-2.7](https://pytorch.org) and clone the repository.
-```bash
-pip install http://download.pytorch.org/whl/cu80/torch-0.1.12.post2-cp27-none-linux_x86_64.whl
-pip install torchvision
-git clone https://github.com/meliketoy/resnet-fine-tuning.pytorch
-```
-
 ## Basic Setups
-After you have cloned this repository into your file system, open [config.py](./config.py),
-And edit the lines below to your data directory.
+Open [config.py](./config.py), and edit the lines below to your data directory.
+
 ```bash
 data_base = [:dir to your original dataset]
 aug_base =  [:dir to your actually trained dataset]
