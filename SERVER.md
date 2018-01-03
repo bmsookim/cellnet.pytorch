@@ -13,8 +13,8 @@ $ sudo vi /etc/bash.bashrc
 # Press [Shift] + [G] and write the code on the bottom
 clear
 printf "Welcome to Ubuntu 16.04.5 LTS (GNU/Linux-Mint-18 x86_64)\n"
-printf "This is the server for the wide-residual-network implementation.\n\n"
-printf " * Documentation: https://github.com/meliketoy/wide-residual-network\n\n"
+printf "This is the server for the cellnet implementation.\n\n"
+printf " * Documentation: https://github.com/meliketoy/cellnet.pytorch\n\n"
 printf "##############################################################\n"
 figlet -f slant "Bumsoo Kim"
 printf "\n\n"
