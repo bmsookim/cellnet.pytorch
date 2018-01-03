@@ -37,10 +37,19 @@ parser.add_argument('--depth', default=50, type=int, help='depth of model')
 args = parser.parse_args()
 
 # Phase 1 : Model Upload
+print('\n[Phase 1] : Model Weight Upload')
 use_gpu = torch.cuda.is_available()
 
+# upload labels
 data_dir = cf.test_base
 trainset_dir = cf.data_base.split("/")[-1]+os.sep
+
+dsets = datasets.ImageFolder(data_dir, None)
+H = datasets.ImageFolder(os.path.join(cf.aug_base, 'train'))
+dset_classes = H.classes
+
+def softmax(x):
+    return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 def getNetwork(args):
     if (args.net_type == 'alexnet'):
@@ -83,5 +92,20 @@ test_transform = transforms.Compose([
     transforms.Normalize(cf.mean, cf.std)
 ])
 
-# Upload a single image
-img = cv2.imread(
+# Inference testout, Upload a single image
+img = Image.open('/home/bumsoo/Data/test/CELL_PATCHES/WBC_Neutrophil_Band/WBC_B150.png')
+if test_transform is not None:
+    img = test_transform(img)
+inputs = img
+inputs = Variable(inputs, volatile=True)
+
+if use_gpu:
+    inputs = inputs.cuda()
+inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
+
+outputs = model(inputs)
+softmax_res = softmax(outputs.data.cpu().numpy()[0])
+
+index,score = max(enumerate(softmax_res), key=operator.itemgetter(1))
+
+print('prediction = ' + dset_classes[index])

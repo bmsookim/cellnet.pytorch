@@ -129,7 +129,7 @@ with open(output_file, 'wb') as csvfile:
                 outputs = model(inputs)
                 softmax_res = softmax(outputs.data.cpu().numpy()[0])
                 index, score = max(enumerate(softmax_res), key=operator.itemgetter(1))
-                sorted_lst = sorted(zip(softmax_res, dset_classes), reverse=True)[:3]
+                # sorted_lst = sorted(zip(softmax_res, dset_classes), reverse=True)[:3] # Get Top-3 Results
 
                 # print(file_path + "," + str(score))
                 if (file_path.split("/")[-2] != dset_classes[index]):
