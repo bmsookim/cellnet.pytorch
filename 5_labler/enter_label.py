@@ -28,11 +28,11 @@ def makeform(root, fields):
 
     return entries
 
-def save_and_quit(image_name, ents, root):
+def save_and_quit(image_name, ents, root, RefPt):
     global cell_type, cell_subtype
 
     with open(result_file, 'ab') as f:
-        f.write(image_name)
+        f.write(image_name+","+str(RefPt[0])+","+str(RefPt[1]))
         for ent in ents:
             (field, ans) = ent
             print(ans.get())
@@ -42,28 +42,31 @@ def save_and_quit(image_name, ents, root):
 
     root.destroy()
 
-def enter_label(image_name):
+def enter_label(image_name, RefPt):
     root = Tk()
     ents = makeform(root, fields)
-    root.bind('<Return>', (lambda event, im=image_name, e=ents, r=root: save_and_quit(im, e, r)))
+    root.bind('<Return>', (lambda event, im=image_name, e=ents, r=root, ref=RefPt: save_and_quit(im, e, r, ref)))
 
-    b2 = Button(root, text='Quit', command=root.quit)
+    b2 = Button(root, text='Quit', command=root.destroy)
     b2.pack(side=RIGHT, padx=5, pady=5)
 
-    b1 = Button(root, text='Enter', command=(lambda: save_and_quit(image_name, ents, root)))
+    b1 = Button(root, text='Confirm', command=(lambda: save_and_quit(image_name, ents, root, RefPt)))
     b1.pack(side=RIGHT, padx=5, pady=5)
 
     root.mainloop()
 
+    return
+
 if __name__ == "__main__":
     root = Tk()
     ents = makeform(root, fields)
-    root.bind('<Return>', (lambda event, im=image_name, e=ents, r=root: save_and_quit(im, e, r)))
+    RefPt = [(0,0), (0,0)]
+    root.bind('<Return>', (lambda event, im=image_name, e=ents, r=root, ref=RefPt: save_and_quit(im, e, r, ref)))
 
-    b2 = Button(root, text='Quit', command=root.quit)
+    b2 = Button(root, text='Quit', command=root.destroy)
     b2.pack(side=RIGHT, padx=5, pady=5)
 
-    b1 = Button(root, text='Enter', command=(lambda: save_and_quit(image_name, ents, root)))
+    b1 = Button(root, text='Confirm', command=(lambda: save_and_quit(image_name, ents, root, RefPt)))
     b1.pack(side=RIGHT, padx=5, pady=5)
 
     root.mainloop()
