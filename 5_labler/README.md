@@ -8,17 +8,22 @@ Upload your image in the execution file, drag the area, and type in the lable of
 The execution file will automatically convert the given information into an XML format.
 
 ## Requirements
-[TODO]
+- [PyGTK](http://www.pygtk.org/)
+- [PyInStaller](http://www.pyinstaller.org/)
 
 ```bash
-# TODO
+# PyGTK
+pip install pygtk
+
+# PyInstaller
+pip install pyinstaller
 ```
 
 ## Basic Setups
 [TODO]
 
 ```bash
-# TODO
+pyinstaller main.py # This will generate the bundle in a subdirectory called dist
 ```
 
 ## How to run
