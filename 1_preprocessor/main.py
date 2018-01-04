@@ -3,7 +3,7 @@
 # Github : https://github.com/meliketoy/cellnet.pytorch
 #
 # Korea University, Data-Mining Lab
-# Deep Convolutional Network Fine tuning Implementation
+# Deep Convolutional Network Preprocessing Implementation
 #
 # Module : 1_preprocessor
 # Description : main.py

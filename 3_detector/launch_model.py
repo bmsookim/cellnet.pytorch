@@ -3,10 +3,10 @@
 # Github : https://github.com/meliketoy/cellnet.pytorch
 #
 # Korea University, Data-Mining Lab
-# Deep Convolutional Network Fine tuning Implementation
+# Deep Convolutional Network Grad CAM Implementation
 #
-# Description : inference.py
-# The main code for inference test phase of trained model.
+# Description : launch_model.py
+# The main code for grad-CAM image localization.
 # ***********************************************************
 
 from __future__ import print_function, division
