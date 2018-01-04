@@ -13,7 +13,7 @@ The execution file will automatically convert the given information into an XML 
 
 ```bash
 # PyGTK
-pip install pygtk
+sudo apt-get install python-gtk2
 
 # PyInstaller
 pip install pyinstaller
