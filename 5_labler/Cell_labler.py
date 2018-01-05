@@ -26,6 +26,7 @@ class Form(QtWidgets.QDialog):
       
         self.current_table = 0
         self.box_start=False
+        self.BOOLfile_open = False
 
         self.ui.radioButton.toggled.connect(lambda:self.btnstate(self.ui.radioButton))
         self.ui.radioButton_2.toggled.connect(lambda:self.btnstate(self.ui.radioButton_2))
@@ -96,8 +97,12 @@ class Form(QtWidgets.QDialog):
 
 
     def mouseMoveEvent(self, QMouseEvent):
-        '''
-        if self.box_start:
+            
+        if self.BOOLfile_open and self.box_start:
+            del self.painterInstance_tmp
+            self.pixmap_image_tmp = QtGui.QPixmap(self.file_name)
+            self.painterInstance_tmp = QtGui.QPainter(self.pixmap_image_tmp)
+
 
             self.Finish_x = QMouseEvent.x()
             self.Finish_y = QMouseEvent.y()
@@ -126,28 +131,36 @@ class Form(QtWidgets.QDialog):
                     str(self.box_height)
                     ))
                 
-                self.penRectangle = QtGui.QPen(QtCore.Qt.red)
-                self.penRectangle.setWidth(0.5)
+                self.penRectangle_tmp = QtGui.QPen(QtCore.Qt.red)
+                self.penRectangle_tmp.setWidth(1)
 
-                self.painterInstance.setPen(self.penRectangle)
-                self.painterInstance.drawRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+                self.painterInstance_tmp.setPen(self.penRectangle_tmp)
+                
+                self.box_rect_tmp = QtCore.QRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+                self.painterInstance_tmp.drawRect(self.box_rect_tmp)
 
-                self.ui.label.setPixmap(self.pixmap_image)
+ 
+
+                #self.painterInstance_tmp.drawRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+
+                self.ui.label.setPixmap(self.pixmap_image_tmp)
                 self.ui.label.show()
-        '''
+        
+     
 
+        """
         self.mouse_x = QMouseEvent.x()
         self.mouse_y = QMouseEvent.y()
         self.update()
-        
+        """
 
     def mousePressEvent(self,QMouseEvent):
         self.Start_x = QMouseEvent.x()
         self.Start_y = QMouseEvent.y()
-        # self.box_start = True
+        self.box_start = True
 
     def mouseReleaseEvent(self,QMouseEvent):
-        # self.box_start = False
+        self.box_start = False
         self.Finish_x = QMouseEvent.x()
         self.Finish_y = QMouseEvent.y()
         
@@ -180,7 +193,8 @@ class Form(QtWidgets.QDialog):
             self.penRectangle.setWidth(0.1)
 
             self.painterInstance.setPen(self.penRectangle)
-            self.painterInstance.drawRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+            self.box_rect = QtCore.QRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+            self.painterInstance.drawRect(self.box_rect)
 
             self.ui.label.setPixmap(self.pixmap_image)
             self.ui.label.show()
@@ -196,15 +210,19 @@ class Form(QtWidgets.QDialog):
             self.file_name,_ = QFileDialog.getOpenFileName(self,'Open File', '.')
             self.setWindowTitle(self.file_name)
             self.pixmap_image = QtGui.QPixmap(self.file_name)
-             
+            self.pixmap_image_tmp = QtGui.QPixmap(self.file_name)
+
             self.width_scale_ratio = self.pixmap_image.width()/self.ui.label.geometry().width()
             self.height_scale_ratio = self.pixmap_image.height()/self.ui.label.geometry().height()
 
             self.painterInstance = QtGui.QPainter(self.pixmap_image)
+            self.painterInstance_tmp = QtGui.QPainter(self.pixmap_image_tmp)
             
             self.ui.label.setPixmap(self.pixmap_image)
             self.ui.label.show()
             self.Init_open = False
+            
+            self.BOOLfile_open = True 
 
         else:
             del self.painterInstance
@@ -218,11 +236,15 @@ class Form(QtWidgets.QDialog):
             self.height_scale_ratio = self.pixmap_image.height()/self.ui.label.geometry().height()
             
             self.painterInstance = QtGui.QPainter(self.pixmap_image)
+            self.painterInstance_tmp = QtGui.QPainter(self.pixmap_image)
             
+
             self.ui.label.setPixmap(self.pixmap_image)
             self.ui.label.show()
             self.Init_open = False
-    
+            self.BOOLfile_open = True
+            
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     w = Form()
