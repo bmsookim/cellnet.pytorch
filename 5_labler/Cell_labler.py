@@ -23,7 +23,11 @@ class Form(QtWidgets.QDialog):
         self.mouse_y = 0
         self.setMouseTracking(True)
         self.ui.label.setMouseTracking(True)
-      
+
+        self.ui.pushButton_2.setShortcut("Ctrl+a")
+        self.ui.pushButton_3.setShortcut("Ctrl+z")
+        self.ui.pushButton_4.setShortcut("Ctrl+s")
+
         self.current_table = 0
         self.box_start=False
         self.BOOLfile_open = False
@@ -67,6 +71,10 @@ class Form(QtWidgets.QDialog):
             self.ui.cell_type.setText('%s'%radioBTN.text())
 
     def add_table(self):
+        self.ui.info_table.setRowCount(self.current_table + 1)
+
+        
+        self.ui.Announcement.setText("")
         self.ui.info_table.setItem(self.current_table,0,
                     QtWidgets.QTableWidgetItem(self.cell_type.text()))
         self.ui.info_table.setItem(self.current_table,1,
@@ -82,6 +90,8 @@ class Form(QtWidgets.QDialog):
     def delete_table(self):
         self.current_table -= 1
 
+        self.ui.Announcement.setText("")
+ 
         self.ui.info_table.setItem(self.current_table,0,
                     QtWidgets.QTableWidgetItem(str()))
         
@@ -94,6 +104,7 @@ class Form(QtWidgets.QDialog):
         self.ui.info_table.setItem(self.current_table,4,
                     QtWidgets.QTableWidgetItem(str()))
        
+        self.ui.info_table.setRowCount(self.current_table)
 
 
     def mouseMoveEvent(self, QMouseEvent):
