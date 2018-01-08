@@ -57,8 +57,7 @@ class Form(QtWidgets.QDialog):
     def save_table(self):
         directory_name = splitext(self.file_name)[0]
         
-        del self.painterInstance_tmp
-        self.pixmap_image_tmp = QtGui.QPixmap(self.file_name)
+        pixmap_image_for_save = QtGui.QPixmap(self.file_name)
 
         if not exists(directory_name):
             makedirs(directory_name)
@@ -70,9 +69,8 @@ class Form(QtWidgets.QDialog):
             data_row=[]
             for j in range(self.ui.info_table.columnCount()):
                 data_row.append(self.ui.info_table.item(i,j).text())
-            #crop_box = QtCore.QRect(int(float(data_row[1])+1),int(float(data_row[2])+1),int(float(data_row[3])-1),int(float(data_row[4])-1))
             crop_box = QtCore.QRect(int(data_row[1]),int(data_row[2]),int(data_row[3]),int(data_row[4]))
-            crop_image = self.pixmap_image_tmp.copy(crop_box)
+            crop_image = pixmap_image_for_save.copy(crop_box)
             crop_image.save(directory_name+'/'+basename(splitext(self.file_name)[0])+'_'+str(i)+'_'+data_row[0]+'.png','png')
             wr.writerow(data_row)
         f.close()
@@ -127,10 +125,76 @@ class Form(QtWidgets.QDialog):
             self.pixmap_image_tmp = QtGui.QPixmap(self.file_name)
             self.painterInstance_tmp = QtGui.QPainter(self.pixmap_image_tmp)
 
-
             self.Finish_x = QMouseEvent.x()
             self.Finish_y = QMouseEvent.y()
             
+            if not ((self.Start_x == self.Finish_x) or
+                (self.Start_y == self.Finish_y) or
+                ((min(self.Start_x,self.Finish_x)-self.ui.label.geometry().x())<0) or
+                ((min(self.Start_y,self.Finish_y)-self.ui.label.geometry().y())<0)):
+
+                
+                self.box_X = min(self.Start_x,self.Finish_x)-self.ui.label.geometry().x()
+                self.box_X = self.box_X*self.width_scale_ratio
+                self.box_Y = min(self.Start_y,self.Finish_y)-self.ui.label.geometry().y()
+                self.box_Y = self.box_Y*self.height_scale_ratio
+                self.box_width = max(self.Start_x,self.Finish_x)-min(self.Start_x,self.Finish_x)
+                self.box_width = self.box_width*self.width_scale_ratio
+                self.box_height = max(self.Start_y,self.Finish_y)-min(self.Start_y,self.Finish_y) 
+                self.box_height = self.box_height*self.height_scale_ratio
+
+                self.box_X = int(float(self.box_X))
+                self.box_Y = int(float(self.box_Y))
+                self.box_width = int(float(self.box_width))
+                self.box_height = int(float(self.box_height))
+
+                if not ((self.Start_x==self.Finish_x) or
+                    (self.Start_y==self.Finish_y) or
+                    ((self.box_X+self.box_width)>self.pixmap_image.width()) or
+                    ((self.box_Y+self.box_height)>self.pixmap_image.height()) or
+                    (self.box_X<0)or(self.box_Y<0)):
+                 
+                    self.Finish_pos.setText("""
+                        X      : %s
+                        Y      : %s
+                        Width  : %s
+                        Height : %s
+                        """%(str(self.box_X),
+                        str(self.box_Y),
+                        str(self.box_width),
+                        str(self.box_height)
+                        ))
+                    
+                    self.penRectangle_tmp = QtGui.QPen(QtCore.Qt.red)
+                    self.penRectangle_tmp.setWidth(1)
+
+                    self.painterInstance_tmp.setPen(self.penRectangle_tmp)
+                    
+                    self.box_rect_tmp = QtCore.QRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+                    self.painterInstance_tmp.drawRect(self.box_rect_tmp)
+
+                    self.ui.label.setPixmap(self.pixmap_image_tmp)
+                    self.ui.label.show()
+            
+         
+
+
+    def mousePressEvent(self,QMouseEvent):
+        self.Start_x = QMouseEvent.x()
+        self.Start_y = QMouseEvent.y()
+        self.box_start = True
+
+    def mouseReleaseEvent(self,QMouseEvent):
+        self.box_start = False
+        self.Finish_x = QMouseEvent.x()
+        self.Finish_y = QMouseEvent.y()
+       
+        if not ((self.Start_x == self.Finish_x) or
+                (self.Start_y == self.Finish_y) or
+                ((min(self.Start_x,self.Finish_x)-self.ui.label.geometry().x())<0) or
+                ((min(self.Start_y,self.Finish_y)-self.ui.label.geometry().y())<0)):
+
+
             self.box_X = min(self.Start_x,self.Finish_x)-self.ui.label.geometry().x()
             self.box_X = self.box_X*self.width_scale_ratio
             self.box_Y = min(self.Start_y,self.Finish_y)-self.ui.label.geometry().y()
@@ -145,10 +209,12 @@ class Form(QtWidgets.QDialog):
             self.box_width = int(float(self.box_width))
             self.box_height = int(float(self.box_height))
 
-            if not (((self.Start_x==self.Finish_x) and
-                    (self.Start_y==self.Finish_y)) or
+
+            if not ((self.Start_x==self.Finish_x) or
+                    (self.Start_y==self.Finish_y) or
                     ((self.box_X+self.box_width)>self.pixmap_image.width()) or
-                    ((self.box_Y+self.box_height)>self.pixmap_image.height())):
+                    ((self.box_Y+self.box_height)>self.pixmap_image.height()) or
+                    (self.box_X<0)or(self.box_Y<0)):
                 self.Finish_pos.setText("""
                     X      : %s
                     Y      : %s
@@ -159,75 +225,16 @@ class Form(QtWidgets.QDialog):
                     str(self.box_width),
                     str(self.box_height)
                     ))
-                
-                self.penRectangle_tmp = QtGui.QPen(QtCore.Qt.red)
-                self.penRectangle_tmp.setWidth(1)
 
-                self.painterInstance_tmp.setPen(self.penRectangle_tmp)
-                
-                self.box_rect_tmp = QtCore.QRect(self.box_X,self.box_Y,self.box_width,self.box_height)
-                self.painterInstance_tmp.drawRect(self.box_rect_tmp)
+                self.penRectangle = QtGui.QPen(QtCore.Qt.red)
+                self.penRectangle.setWidth(0.1)
 
- 
+                self.painterInstance.setPen(self.penRectangle)
+                self.box_rect = QtCore.QRect(self.box_X,self.box_Y,self.box_width,self.box_height)
+                self.painterInstance.drawRect(self.box_rect)
 
-                #self.painterInstance_tmp.drawRect(self.box_X,self.box_Y,self.box_width,self.box_height)
-
-                self.ui.label.setPixmap(self.pixmap_image_tmp)
+                self.ui.label.setPixmap(self.pixmap_image)
                 self.ui.label.show()
-        
-     
-
-
-    def mousePressEvent(self,QMouseEvent):
-        self.Start_x = QMouseEvent.x()
-        self.Start_y = QMouseEvent.y()
-        self.box_start = True
-
-    def mouseReleaseEvent(self,QMouseEvent):
-        self.box_start = False
-        self.Finish_x = QMouseEvent.x()
-        self.Finish_y = QMouseEvent.y()
-        
-        self.box_X = min(self.Start_x,self.Finish_x)-self.ui.label.geometry().x()
-        self.box_X = self.box_X*self.width_scale_ratio
-        self.box_Y = min(self.Start_y,self.Finish_y)-self.ui.label.geometry().y()
-        self.box_Y = self.box_Y*self.height_scale_ratio
-        self.box_width = max(self.Start_x,self.Finish_x)-min(self.Start_x,self.Finish_x)
-        self.box_width = self.box_width*self.width_scale_ratio
-        self.box_height = max(self.Start_y,self.Finish_y)-min(self.Start_y,self.Finish_y) 
-        self.box_height = self.box_height*self.height_scale_ratio
-
-        self.box_X = int(float(self.box_X))
-        self.box_Y = int(float(self.box_Y))
-        self.box_width = int(float(self.box_width))
-        self.box_height = int(float(self.box_height))
-
-
-        if not (((self.Start_x==self.Finish_x) and
-                (self.Start_y==self.Finish_y)) or
-                ((self.box_X+self.box_width)>self.pixmap_image.width()) or
-                ((self.box_Y+self.box_height)>self.pixmap_image.height()) or
-                (self.box_X<0)or(self.box_Y<0)):
-            self.Finish_pos.setText("""
-                X      : %s
-                Y      : %s
-                Width  : %s
-                Height : %s
-                """%(str(self.box_X),
-                str(self.box_Y),
-                str(self.box_width),
-                str(self.box_height)
-                ))
-            
-            self.penRectangle = QtGui.QPen(QtCore.Qt.red)
-            self.penRectangle.setWidth(0.1)
-
-            self.painterInstance.setPen(self.penRectangle)
-            self.box_rect = QtCore.QRect(self.box_X,self.box_Y,self.box_width,self.box_height)
-            self.painterInstance.drawRect(self.box_rect)
-
-            self.ui.label.setPixmap(self.pixmap_image)
-            self.ui.label.show()
 
 
 
