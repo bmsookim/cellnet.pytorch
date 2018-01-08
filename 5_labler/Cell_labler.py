@@ -70,7 +70,8 @@ class Form(QtWidgets.QDialog):
             data_row=[]
             for j in range(self.ui.info_table.columnCount()):
                 data_row.append(self.ui.info_table.item(i,j).text())
-            crop_box = QtCore.QRect(int(float(data_row[1])+1),int(float(data_row[2])+1),int(float(data_row[3])-1.1),int(float(data_row[4])-1.1))
+            #crop_box = QtCore.QRect(int(float(data_row[1])+1),int(float(data_row[2])+1),int(float(data_row[3])-1),int(float(data_row[4])-1))
+            crop_box = QtCore.QRect(int(data_row[1]),int(data_row[2]),int(data_row[3]),int(data_row[4]))
             crop_image = self.pixmap_image_tmp.copy(crop_box)
             crop_image.save(directory_name+'/'+basename(splitext(self.file_name)[0])+'_'+str(i)+'_'+data_row[0]+'.png','png')
             wr.writerow(data_row)
@@ -139,6 +140,11 @@ class Form(QtWidgets.QDialog):
             self.box_height = max(self.Start_y,self.Finish_y)-min(self.Start_y,self.Finish_y) 
             self.box_height = self.box_height*self.height_scale_ratio
 
+            self.box_X = int(float(self.box_X))
+            self.box_Y = int(float(self.box_Y))
+            self.box_width = int(float(self.box_width))
+            self.box_height = int(float(self.box_height))
+
             if not (((self.Start_x==self.Finish_x) and
                     (self.Start_y==self.Finish_y)) or
                     ((self.box_X+self.box_width)>self.pixmap_image.width()) or
@@ -190,6 +196,12 @@ class Form(QtWidgets.QDialog):
         self.box_width = self.box_width*self.width_scale_ratio
         self.box_height = max(self.Start_y,self.Finish_y)-min(self.Start_y,self.Finish_y) 
         self.box_height = self.box_height*self.height_scale_ratio
+
+        self.box_X = int(float(self.box_X))
+        self.box_Y = int(float(self.box_Y))
+        self.box_width = int(float(self.box_width))
+        self.box_height = int(float(self.box_height))
+
 
         if not (((self.Start_x==self.Finish_x) and
                 (self.Start_y==self.Finish_y)) or
