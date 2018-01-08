@@ -3,7 +3,8 @@
 
 import csv
 import sys
-from os.path import splitext
+from os import makedirs
+from os.path import splitext,basename,exists
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import uic
@@ -54,6 +55,14 @@ class Form(QtWidgets.QDialog):
 
 
     def save_table(self):
+        directory_name = splitext(self.file_name)[0]
+        
+        del self.painterInstance_tmp
+        self.pixmap_image_tmp = QtGui.QPixmap(self.file_name)
+
+        if not exists(directory_name):
+            makedirs(directory_name)
+
         csv_name = splitext(self.file_name)[0]+'.csv'
         f = open(csv_name,'w',encoding='utf-8',newline='')
         wr = csv.writer(f)
@@ -61,6 +70,9 @@ class Form(QtWidgets.QDialog):
             data_row=[]
             for j in range(self.ui.info_table.columnCount()):
                 data_row.append(self.ui.info_table.item(i,j).text())
+            crop_box = QtCore.QRect(int(float(data_row[1])+1),int(float(data_row[2])+1),int(float(data_row[3])-1.1),int(float(data_row[4])-1.1))
+            crop_image = self.pixmap_image_tmp.copy(crop_box)
+            crop_image.save(directory_name+'/'+basename(splitext(self.file_name)[0])+'_'+str(i)+'_'+data_row[0]+'.png','png')
             wr.writerow(data_row)
         f.close()
         self.ui.Announcement.setText('Saved at %s'%csv_name)
@@ -159,11 +171,6 @@ class Form(QtWidgets.QDialog):
         
      
 
-        """
-        self.mouse_x = QMouseEvent.x()
-        self.mouse_y = QMouseEvent.y()
-        self.update()
-        """
 
     def mousePressEvent(self,QMouseEvent):
         self.Start_x = QMouseEvent.x()
