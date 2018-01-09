@@ -53,7 +53,7 @@ def save_class_activation_on_image(org_img, activation_map, file_name):
     cv2.imwrite(path_to_file, activation_map)
 
     # Heatmap of activation map
-    activation heatmap = cv2.applyColorMap(activation_map, cv2.COLORMAP_HSV)
+    activation heatmap = cv2.applyColorMap(activation_map, cv2.COLORMAP_JET)
     path_to_file = os.path.join('./results', file_name+'_Cam_Heatmap.jpg')
     cv2.imwrite(path_to_file, activation_heatmap)
 
