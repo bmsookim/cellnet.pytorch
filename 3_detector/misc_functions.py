@@ -8,15 +8,36 @@
 # Description : misc_function.py
 # The main code for grad-CAM image localization.
 # ***********************************************************
-
 import os
-import copy
 import cv2
+import copy
 import numpy as np
 
 import torch
 from torch.autograd import Variable
 from torchvision import models
+
+def preprocess_image(cv2im, resize_im=True):
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
+
+    if resize_im:
+        cv2im = cv2.resize(cv2im, (224, 224))
+    im_as_arr = np.float32(cv2im)
+    im_as_arr = np.ascontiguousarray(im_as_arr[..., ::-1])
+    im_as_arr = im_as_arr.transpose(2,0,1)
+
+    for channel, _ in enumerate(im_as_arr):
+        im_as_arr[channel] /= 255
+        im_as_arr[channel] -= mean[channel]
+        im_as_arr[channel] /= std[channel]
+
+    im_as_ten = torch.from_numpy(im_as_arr).float()
+    im_as_ten.unsqueeze_(0)
+
+    im_as_var = Variable(im_as_ten, requires_grad = True)
+
+    return im_as_var
 
 def save_gradient_images(gradient, file_name):
     """
@@ -53,7 +74,7 @@ def save_class_activation_on_image(org_img, activation_map, file_name):
     cv2.imwrite(path_to_file, activation_map)
 
     # Heatmap of activation map
-    activation heatmap = cv2.applyColorMap(activation_map, cv2.COLORMAP_JET)
+    activation_heatmap = cv2.applyColorMap(activation_map, cv2.COLORMAP_JET)
     path_to_file = os.path.join('./results', file_name+'_Cam_Heatmap.jpg')
     cv2.imwrite(path_to_file, activation_heatmap)
 
