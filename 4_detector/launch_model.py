@@ -34,7 +34,6 @@ from torch.autograd import Variable
 from PIL import Image
 from misc_functions import save_class_activation_on_image
 from grad_cam import BackPropagation, GradCAM, GuidedBackPropagation
-from guided_backprop import GuidedBackprop
 
 parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
@@ -123,9 +122,8 @@ print('| prediction = ' + dset_classes[index])
 gcam = GradCAM(model._modules.items()[0][1], cuda=use_gpu)#model=model._modules.items()[0][1], cuda=use_gpu)
 gbp = GuidedBackPropagation(model=model._modules.items()[0][1], cuda=use_gpu)
 
-print(dset_classes)
-# WBC_id = 16 # Neutrophil Segmented
-WBC_id = 3 # Eosinophil
+#print(dset_classes)
+WBC_id = 16 # Neutrophil Segmented
 print("Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
 for i in range(14):

@@ -18,8 +18,8 @@ You can see the paper [here]().
 ## Modules
 - [#1 Preprocessor](./1_preprocessor)
 - [#2 Parser](./2_parser)
-- [#3 Detector](./3_detector)
-- [#4 Classifier](./4_classifier)
+- [#3 Classifier](./3_classifier)
+- [#4 Detector](./4_detector)
 
 ## Requirements
 See the [installation instruction](INSTALL.md) for a step-by-step installation guide.
