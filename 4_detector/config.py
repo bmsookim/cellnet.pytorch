@@ -12,10 +12,8 @@ aug_base = aug_dir + name
 test_base = test_dir + name
 
 # model directory
-model_dir = '../4_classifier/checkpoints'
-#image_path = '/home/bumsoo/Data/test/CELL_PATCHES/WBC_Neutrophil_Segmented/WBC_SE110.png'
-#image_path = '/home/bumsoo/Data/test/CELL_PATCHES/RBC_Target/RBC_TA14.png'
-#image_path = './samples/2.png'
+model_dir = '../3_classifier/checkpoints'
+test_dir = '/home/bumsoo/Data/test/20_CELL_TEST/TEST' # Number on the back
 
 # model option
 batch_size = 16

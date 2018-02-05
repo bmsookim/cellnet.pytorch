@@ -94,7 +94,8 @@ class GradCAM(PropagationBase):
 
         gcam = gcam.data.cpu().numpy()
         gcam -= gcam.min()
-        gcam /= gcam.max()
+        if(gcam.max() != 0):
+            gcam /= gcam.max()
         gcam = cv2.resize(gcam, (self.image.size(3), self.image.size(2)))
 
         return gcam
@@ -102,7 +103,8 @@ class GradCAM(PropagationBase):
     def save(self, filename, gcam, raw_image):
         gcam = cv2.applyColorMap(np.uint8(gcam * 255.0), cv2.COLORMAP_JET)
         gcam = gcam.astype(np.float) + raw_image.astype(np.float)
-        gcam = gcam / gcam.max() * 255.0
+        if(gcam.max() != 0):
+            gcam = gcam / gcam.max() * 255.0
         cv2.imwrite(filename, np.uint8(gcam))
 
 

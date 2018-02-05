@@ -71,7 +71,9 @@ Supporting networks
 [:TODO] Random Cropping and Merging
 
 - Original Image
-![alt_tag](../imgs/detection/before.png)
+
+<p align="left"><img width="40%" src=(../imgs/detection/before.png)></p>
 
 - Grad-CAM Image
-![alt_tag](../imgs/detection/after.png)
+
+<p align="left"><img width="40%" src=(../imgs/detection/after.png)></p>

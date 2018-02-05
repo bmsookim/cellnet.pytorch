@@ -68,12 +68,23 @@ def getNetwork(args):
 
     return file_name
 
+def random_crop(image, dim):
+    if len(image.shape):
+        W, H, D = image.shape
+        w, h, d = dim
+    else:
+        W, H = image.shape
+        w, h = size
+
+    left, top = np.random.randint(W-w+1), np.random.randint(H-h+1)
+    return image[left:left+w, top:top+h], left, top
+
 # uploading the model
 print("| Loading checkpoint model for grad-CAM...")
-assert os.path.isdir('../4_classifier/checkpoint'),'[Error]: No checkpoint directory found!'
-assert os.path.isdir('../4_classifier/checkpoint/'+trainset_dir),'[Error]: There is no model weight to upload!'
+assert os.path.isdir('../3_classifier/checkpoint'),'[Error]: No checkpoint directory found!'
+assert os.path.isdir('../3_classifier/checkpoint/'+trainset_dir),'[Error]: There is no model weight to upload!'
 file_name = getNetwork(args)
-checkpoint = torch.load('../4_classifier/checkpoint/'+trainset_dir+file_name+'.t7')
+checkpoint = torch.load('../3_classifier/checkpoint/'+trainset_dir+file_name+'.t7')
 model = checkpoint['model']
 
 if use_gpu:
@@ -128,15 +139,19 @@ print("Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
 for i in range(14):
     file_name = './cell_data/2_%s_Neutrophil Segmented.png' %(str(i))
-    print(file_name)
+    print("Opening "+file_name+"...")
 
     original_image = cv2.imread(file_name)
-    img = Image.open(file_name)
+    resize_ratio = 224./min(original_image.shape[0:2])
+    resized = cv2.resize(original_image, (0,0), fx=resize_ratio, fy=resize_ratio)
+    cropped, left, top = random_crop(resized, (224, 224, 3))
+    print(cropped.size)
     if test_transform is not None:
-        img = test_transform(img)
-        original_image = cv2.resize(original_image, (256, 256))
+        img = test_transform(Image.fromarray(cropped, mode='RGB'))
 
-    center_cropped = original_image[16:240, 16:240, :]
+    # center_cropped = original_image[16:240, 16:240, :]
+    # expand the image based on the short side
+
     inputs = img
     inputs = Variable(inputs, requires_grad=True)
 
@@ -158,10 +173,8 @@ for i in range(14):
     # Guided Grad-CAM
     #output = np.multiply(feature, region)
 
-    """
-    """
-    gcam.save('./results/%s.png' %str(i), output, center_cropped)
-    cv2.imwrite('./results/map%s.png' %str(i), output*255)
+    gcam.save('./results/%s.png' %str(i), output, cropped)
+    cv2.imwrite('./results/map%s.png' %str(i), cropped)
 
     for j in range(3):
         print('\t{:5f}\t{}\n'.format(probs[j], dset_classes[idx[j]]))
