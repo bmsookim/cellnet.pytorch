@@ -20,7 +20,7 @@ def print_menu():
     print("\nSelect a mode by its name or number.\nType [exit] to terminate.\n")
     print("################## [ Options ] ###########################")
     print("# Mode 1 'print'  : Print names of image data file")
-    print("# Mode 2 'read'   : [original/aug] Read names data")
+    print("# Mode 2 'read'   : [original/resized] Read names data")
     print("# Mode 3 'resize' : [target_size]  Resize & Orgnaize data")
     print("# Mode 4 'split'  : Create a train-validation split of data")
     print("# Mode 5 'count'  : Check the distribution of raw data")
@@ -90,8 +90,8 @@ if __name__ == "__main__":
             mean = ff.train_mean(cf.split_dir)
             std = ff.train_std(cf.split_dir, mean)
 
-            print(mean)
-            print(std)
+            print("mean = " + str(mean))
+            print("std = " + str(std))
 
         #############################################
         # @ Module 8 : Preprocess test data

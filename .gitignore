@@ -106,3 +106,4 @@ ENV/
 # Checkpoints & logs
 *.t7
 *.csv
+*/results*/*

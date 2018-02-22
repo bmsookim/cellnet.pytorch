@@ -150,7 +150,7 @@ if (args.testOnly):
         inputs, targets = Variable(inputs, volatile=True), Variable(targets)
         outputs = model(inputs)
 
-        # print(outputs.data.cpu().numpy()[0])
+        print(outputs.data.cpu().numpy()[0])
         softmax_res = softmax(outputs.data.cpu().numpy()[0])
 
         _, predicted = torch.max(outputs.data, 1)

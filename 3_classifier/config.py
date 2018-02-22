@@ -1,7 +1,7 @@
 #################### Configuration File ####################
 
 # Base directory for data formats
-name = 'CELL_PATCHES'
+name = 'FIND_WBC'
 data_dir = '/home/mnt/datasets/'
 aug_dir = '/home/bumsoo/Data/split/'
 test_dir = '/home/bumsoo/Data/test/'
@@ -17,5 +17,5 @@ lr_decay_epoch=20
 feature_size = 500
 
 # Global meanstd
-mean = [0.778163803690477, 0.62366406713856704, 0.62748488269742386]
-std = [0.18654390350275066, 0.25577185166630317, 0.22957029180170951]
+mean = [0.80281052043887768, 0.67348388118712643, 0.67175728590459316]
+std = [0.18278017174219421, 0.24164077214496718, 0.21683084040751013]

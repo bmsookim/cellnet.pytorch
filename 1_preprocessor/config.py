@@ -1,7 +1,7 @@
 ############# Configuration file #############
 
 # Name of dataset
-name = 'CELL_PATCHES'
+name = 'FIND_WBC'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name
@@ -17,4 +17,4 @@ split_dir = split_base + name
 # Validation split
 split = 'fix' # [ratio/fix]
 val_ratio = 0.2
-val_num = 10
+val_num = 15

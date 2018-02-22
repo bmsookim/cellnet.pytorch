@@ -140,8 +140,7 @@ def create_train_val_split(in_dir, split_dir, split=cf.split):
 
     # val_num = cf.val_num # temporary
     for subdir, dirs, files in os.walk(in_dir):
-        val_num = int(len(files)*cf.vali_ratio) if (split=='ratio') else cf.val_num
-        print(val_num)
+        val_num = int(len(files)*cf.val_ratio) if (split=='ratio') else cf.val_num
         cnt = 0
         for f in files:
             file_path = subdir + os.sep + f
