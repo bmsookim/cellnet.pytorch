@@ -207,7 +207,7 @@ if __name__ == "__main__":
                 comp_idx = WBC_id
                 item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
 
-            if ('RBC' in dset_classes[idx[0]] or probs[item_id] < 0.3):
+            if ('RBC' in dset_classes[idx[0]] or probs[item_id] < 0.5):
                 heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
             else:
                 print(dset_classes[comp_idx], probs[item_id])
