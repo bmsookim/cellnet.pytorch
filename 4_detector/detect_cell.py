@@ -42,7 +42,7 @@ parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
 parser.add_argument('--stepSize', default=50, type=int, help='size of each sliding window steps')
 parser.add_argument('--windowSize', default=100, type=int, help='size of the sliding window')
-parser.add_argument('--subtype', default='WBC_Neutrophil_Segmented', type=str, help='Type to find')
+parser.add_argument('--subtype', default=None, type=str, help='Type to find')
 parser.add_argument('--testNumber', default=1, type=int, help='Test Number')
 args = parser.parse_args()
 
@@ -153,17 +153,20 @@ if __name__ == "__main__":
     #@ Code for extracting a grad-CAM region for a given class
     gcam = GradCAM(model._modules.items()[0][1], cuda=use_gpu)
 
-    #print(dset_classes)
     print("\n[Phase 2] : Gradient Detection")
-    WBC_id = return_class_idx(args.subtype)
-    if not (args.subtype in dset_classes):
-        print("The given subtype does not exists!")
-        sys.exit(1)
+    if args.subtype != None:
+        WBC_id = return_class_idx(args.subtype)
 
-    print("| Checking Activated Regions for " + dset_classes[WBC_id] + "...")
+        if not (args.subtype in dset_classes):
+            print("The given subtype does not exists!")
+            sys.exit(1)
+
+    if args.subtype == None:
+        print("| Checking All Activated Regions ... ")
+    else:
+        print("| Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
     file_name = cf.test_dir + str(args.testNumber) + os.sep + ('TEST%s.png' %str(args.testNumber))
-    #file_name = cf.test_dir + str(args.testNumber) + ".png"
     print("| Opening "+file_name+"...")
 
     original_image = cv2.imread(file_name)
@@ -180,8 +183,6 @@ if __name__ == "__main__":
     pbar.start()
     progress = 0
 
-    # TODO!
-    # Change this part to batchwise operation
     for img in lst:
         if (img.size[0] == img.size[1]): # Only consider foursquare regions
             backg = np.asarray(img)
@@ -197,23 +198,26 @@ if __name__ == "__main__":
                 inputs = inputs.cuda()
             inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
 
-            #print(inputs.size())
             probs, idx = gcam.forward(inputs)
 
-            if ('RBC' in dset_classes[idx[0]] or probs[0] < 0.9):
+            if (args.subtype == None):
+                comp_idx = idx[0]
+                item_id = 0
+            else:
+                comp_idx = WBC_id
+                item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
+
+            if ('RBC' in dset_classes[idx[0]] or probs[item_id] < 0.3):
                 heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
             else:
-                print(dset_classes[idx[0]], probs[0])
+                print(dset_classes[comp_idx], probs[item_id])
+
                 # Grad-CAM
-                gcam.backward(idx=idx[0])#WBC_id) # Get gradients for the selected label
+                gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
                 output = gcam.generate(target_layer='layer4.2') # Needs more testout
 
-                #item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
                 heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
                 heatmap_lst.append(heatmap)
-                #gcam.save("./heatmap/%s.png" %progress, heatmap, backg)
-                #cv2.imwrite("./heatmap/%s.png" %progress, heatmap)
-                #print('\t| {:5f}\t{}'.format(probs[0], dset_classes[idx[0]]))
             pbar.update(progress)
             progress += 1
     pbar.finish()
@@ -222,6 +226,8 @@ if __name__ == "__main__":
 
     img_cnt = 0
     image = original_image
+
+    trim = original_image
     image = generate_padding_image(image, 'cv2')
     blank_canvas = np.ones_like(image) # blank_canvas to draw the mapo
     original_image = image
@@ -231,7 +237,6 @@ if __name__ == "__main__":
         for y in range(0, image.shape[1], args.stepSize):
             f_map = heatmap_lst[img_cnt]
             f_map = cv2.resize(f_map, (args.windowSize, args.windowSize))
-            #f_map.fill(250)
             target_window = blank_canvas[y:y+args.windowSize, x:x+args.windowSize]
 
             if (target_window.shape[0] == target_window.shape[1]): # Only for foursquare windows
@@ -240,23 +245,15 @@ if __name__ == "__main__":
 
                 # Code to see the window flow, activate the f_map.fill code above
                 # cv2.imwrite("./results/%s.png" %(str(img_cnt)), blank_canvas)
-                #gcam.save("./results/%s.png" %(str(img_cnt)), blank_canvas, original_image)
+                # gcam.save("./results/%s.png" %(str(img_cnt)), blank_canvas, original_image)
 
                 if (img_cnt >= len(heatmap_lst)):
                     blank_canvas = cv2.GaussianBlur(blank_canvas, (15,15), 0)
-                    save_dir = './results/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
-                    #print(save_dir)
-                    """
-                    # Contours
-                    _, coins_binary = cv2.threshold(cv2.cvtColor(blank_canvas, cv2.COLOR_BGR2GRAY),
-                            100, 255, cv2.THRESH_BINARY)
-                    cells_contours, _ = cv2.findContours(coins_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                    cells_and_contours = np.copy(original_image)
-                    cv2.drawContours(cells_and_contours, cells_contours, -1, (0, 255, 0), 2)
-                    cv2.imwrite("./results/contours_%s_%s.png"
-                            %(file_name.split(".")[-2].split("/")[-1], args.subtype),
-                            cells_and_contours)
-                    """
-                    gcam.save(save_dir, blank_canvas, original_image)
+                    if args.subtype == None:
+                        save_dir = './results/%s.png' %(file_name.split(".")[-2].split("/")[-1])
+                    else:
+                        save_dir = './results/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
+                    blank_canvas[:original_image.shape[0], :original_image.shape[1]]
+                    gcam.save(save_dir, blank_canvas[:trim.shape[0], :trim.shape[1]], trim)#original_image)
                     print("| Feature map completed!")
                     sys.exit(0)
