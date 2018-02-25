@@ -79,10 +79,10 @@ if __name__ == "__main__":
         ############################################
         # @ Module 6 : Training data augmentation
         elif (mode == 'aug' or mode == '7'):
-            if (len(sys.argv) < 3):
-                print("[Error] : Please define size in the second arguement.")
-            else:
-                ff.aug_train(cf.split_dir, sys.argv[2])
+            #if (len(sys.argv) < 3):
+            #    print("[Error] : Please define size in the second arguement.")
+            #else:
+            ff.aug_train(cf.split_dir, cf.rotate_mode)#sys.argv[2])
 
         #############################################
         # @ Module 7 : Retrieve Training data meanstd

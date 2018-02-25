@@ -172,11 +172,11 @@ def aug_train(split_dir, mode):
                 name, ext = os.path.splitext(f)
                 img = cv2.imread(file_path)
                 for i in range(1,4):
-                    rot_dir = (subdir + os.sep + name + "_aug_"+str(i+1)+ext)
+                    rot_dir = (subdir + os.sep + name + "_aug_"+str(i*90)+ext)
                     if(mode == 'random'):
-                        cv2.imwrite(rot_dir, aug.random_rotation(img))
+                        cv2.imwrite(rot_dir, aug.rotation(img, 0, 'random'))
                     elif(mode == 'strict'):
-                        cv2.imwrite(rot_dir, aug.strict_rotation(img, i))
+                        cv2.imwrite(rot_dir, aug.rotation(img, i, 'strict'))
                     else:
                         print("The mode should be either random | strict")
                         sys.exit(1)
