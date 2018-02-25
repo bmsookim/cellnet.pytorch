@@ -41,7 +41,7 @@ def save_sliding_windows(in_dir, out_dir, stepSize, windowSize):
                 image = cv2.imread(file_path)
                 #print(image.shape)
 
-                image = generate_padding_image(image, stepSize, windowSize)
+                #image = generate_padding_image(image, stepSize, windowSize)
                 #print(image.shape)
 
                 for x in range(0, image.shape[0], stepSize):
@@ -61,7 +61,7 @@ def pick_random_slides(in_dir, out_dir):
     path, dirs, files = os.walk(in_dir).next()
     file_count = len(files)
 
-    lst = random.sample(range(0, file_count), (623+25))
+    lst = random.sample(range(0, file_count), (700-377+25))
 
     for file_num in lst:
         file_path = os.path.join(in_dir, "Crop_%d.png" %file_num)

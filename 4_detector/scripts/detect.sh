@@ -5,8 +5,8 @@
 for ((i=1; i<=21; i++)) do
     python detect_cell.py \
         --depth 50 \
-        --windowSize 90 \
-        --stepSize 50 \
+        --windowSize 80 \
+        --stepSize 60 \
         --testNumber $i
         #--subtype WBC_Lymphocyte
 done

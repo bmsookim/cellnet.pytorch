@@ -10,7 +10,7 @@ Authors
 - Bumsoo Kim
 - Junhyun Lee
 - Hyunjoo Choi
-- Chaesung Lim
+- Chaeseung Lim
 - Jaewoo Kang
 
 You can see the paper [here]().

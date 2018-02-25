@@ -103,6 +103,12 @@ def generate_sliding_windows(image, stepSize, windowSize):
         for y in range(0, image.size[1], stepSize):
             if(x+windowSize <= image.size[0] and y+windowSize <= image.size[1]):
                 list_windows.append(image.crop((x,y,x+windowSize,y+windowSize)))
+            elif (x+windowSize > image.size[0] and y+windowSize > image.size[1]) :
+                list_windows.append(image.crop((image.size[0]-windowSize,image.size[1]-windowSize,image.size[0],image.size[1])))
+            elif (x+windowSize > image.size[0]):
+                list_windows.append(image.crop((image.size[0]-windowSize,y,image.size[0],y+windowSize)))
+            elif (y+windowSize > image.size[1]):
+                list_windows.append(image.crop((x,image.size[1]-windowSize,x+windowSize,image.size[1])))
 
     return list_windows
 
@@ -171,7 +177,7 @@ if __name__ == "__main__":
 
     original_image = cv2.imread(file_name)
     PIL_image = Image.open(file_name)
-    PIL_image = generate_padding_image(PIL_image, 'PIL')
+    #PIL_image = generate_padding_image(PIL_image, 'PIL')
 
     lst = generate_sliding_windows(PIL_image, args.stepSize, args.windowSize)
 
@@ -183,43 +189,55 @@ if __name__ == "__main__":
     pbar.start()
     progress = 0
 
-    for img in lst:
-        if (img.size[0] == img.size[1]): # Only consider foursquare regions
-            backg = np.asarray(img)
+    with open('logs/TEST%d.csv' %(args.testNumber), 'w') as csvfile:
+        fieldnames = ['location', 'prediction', 'score']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-            if test_transform is not None:
-                img = test_transform(img)
-                backg = cv2.resize(backg, (224, 224))
+        writer.writeheader()
+        for img in lst:
+            if (img.size[0] == img.size[1]): # Only consider foursquare regions
+                backg = np.asarray(img)
 
-            inputs = img[:3,:,:]
-            inputs = Variable(inputs, requires_grad=True)
+                if test_transform is not None:
+                    img = test_transform(img)
+                    backg = cv2.resize(backg, (224, 224))
 
-            if use_gpu:
-                inputs = inputs.cuda()
-            inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
+                inputs = img[:3,:,:]
+                inputs = Variable(inputs, requires_grad=True)
 
-            probs, idx = gcam.forward(inputs)
+                if use_gpu:
+                    inputs = inputs.cuda()
+                inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
 
-            if (args.subtype == None):
-                comp_idx = idx[0]
-                item_id = 0
-            else:
-                comp_idx = WBC_id
-                item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
+                probs, idx = gcam.forward(inputs)
 
-            if ('RBC' in dset_classes[idx[0]] or probs[item_id] < 0.5):
-                heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
-            else:
-                print(dset_classes[comp_idx], probs[item_id])
+                if (args.subtype == None):
+                    comp_idx = idx[0]
+                    item_id = 0
+                else:
+                    comp_idx = WBC_id
+                    item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
 
-                # Grad-CAM
-                gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
-                output = gcam.generate(target_layer='layer4.2') # Needs more testout
+                if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
+                    heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
+                elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.6):
+                    heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
+                else:
+                    print(dset_classes[comp_idx], probs[item_id])
+                    writer.writerow({
+                        'location': progress,
+                        'prediction': dset_classes[comp_idx],
+                        'score': probs[item_id]
+                    })
 
-                heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
-                heatmap_lst.append(heatmap)
-            pbar.update(progress)
-            progress += 1
+                    # Grad-CAM
+                    gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
+                    output = gcam.generate(target_layer='layer4.2') # Needs more testout
+
+                    heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
+                    heatmap_lst.append(heatmap)
+                pbar.update(progress)
+                progress += 1
     pbar.finish()
 
     print("\n[Phase 4] : Patching Up Individual Heatmaps")
@@ -227,8 +245,8 @@ if __name__ == "__main__":
     img_cnt = 0
     image = original_image
 
-    trim = original_image
-    image = generate_padding_image(image, 'cv2')
+    #trim = original_image
+    #image = generate_padding_image(image, 'cv2')
     blank_canvas = np.ones_like(image) # blank_canvas to draw the mapo
     original_image = image
     image = cv2.transpose(image)
@@ -237,7 +255,15 @@ if __name__ == "__main__":
         for y in range(0, image.shape[1], args.stepSize):
             f_map = heatmap_lst[img_cnt]
             f_map = cv2.resize(f_map, (args.windowSize, args.windowSize))
-            target_window = blank_canvas[y:y+args.windowSize, x:x+args.windowSize]
+
+            if (y+args.windowSize > image.shape[1] and x+args.windowSize > image.shape[0]):
+                target_window = blank_canvas[image.shape[1]-args.windowSize:image.shape[1], image.shape[0]-args.windowSize:image.shape[0]]
+            elif (y+args.windowSize > image.shape[1]):
+                target_window = blank_canvas[image.shape[1]-args.windowSize:image.shape[1], x:x+args.windowSize]
+            elif (x+args.windowSize > image.shape[0]):
+                target_window = blank_canvas[y:y+args.windowSize, image.shape[0]-args.windowSize:image.shape[0]]
+            else:
+                target_window = blank_canvas[y:y+args.windowSize, x:x+args.windowSize]
 
             if (target_window.shape[0] == target_window.shape[1]): # Only for foursquare windows
                 target_window += f_map
@@ -248,12 +274,18 @@ if __name__ == "__main__":
                 # gcam.save("./results/%s.png" %(str(img_cnt)), blank_canvas, original_image)
 
                 if (img_cnt >= len(heatmap_lst)):
+                    #blank_canvas[blank_canvas < 100] = 0
                     blank_canvas = cv2.GaussianBlur(blank_canvas, (15,15), 0)
                     if args.subtype == None:
                         save_dir = './results/%s.png' %(file_name.split(".")[-2].split("/")[-1])
+                        save_mask = './masks/%s.png' %(file_name.split(".")[-2].split("/")[-1])
                     else:
                         save_dir = './results/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
-                    blank_canvas[:original_image.shape[0], :original_image.shape[1]]
-                    gcam.save(save_dir, blank_canvas[:trim.shape[0], :trim.shape[1]], trim)#original_image)
+                        save_mask = './masks/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
+                    #blank_canvas[:original_image.shape[0], :original_image.shape[1]]
+                    gcam.save(save_dir, blank_canvas, original_image)
+                    #gcam.save(save_dir, blank_canvas[:trim.shape[0], :trim.shape[1]], trim)#original_image)
+                    cv2.imwrite(save_mask, blank_canvas)
+                    #cv2.imwrite(save_mask, blank_canvas[:trim.shape[0], :trim.shape[1]])
                     print("| Feature map completed!")
                     sys.exit(0)
