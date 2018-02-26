@@ -19,6 +19,8 @@ from PIL import Image
 parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
+parser.add_argument('--start', default=1, type=int, help='starting index')
+parser.add_argument('--finish', default=21, type=int, help='finishing index')
 args = parser.parse_args()
 
 # Phase 1 : Model Upload
@@ -78,7 +80,7 @@ def check_and_mkdir(in_dir):
     if not os.path.exists(in_dir):
         os.makedirs(in_dir)
 
-for file_number in range(1, 22):
+for file_number in range(args.start, args.finish+1):
     print("| Predicting Box Inference for TEST%d..." %file_number)
     original_img = cv2.imread('/home/bumsoo/Data/test/CT_20/TEST%d.png' %file_number)
     mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
@@ -88,7 +90,7 @@ for file_number in range(1, 22):
 
     ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 100, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3,3), np.uint8)
-    closing = cv2.morphologyEx(threshed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
+    closing = cv2.morphologyEx(threshed_img, cv2.MORPH_CLOSE, kernel, iterations=4)
 
     _, contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -119,5 +121,8 @@ for file_number in range(1, 22):
 
             count += 1
             crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
-            cv2.imwrite("./results/cropped/TEST%d/%s_%d.png" %(file_number, dset_classes[index], count), crop)
-            print("\t%s_%d : %f" %(dset_classes[index], count, score))
+            if ('RBC' in dset_classes[index]):
+                print("\tRBC_%d : %f" %(count, score))
+            else:
+                cv2.imwrite("./results/cropped/TEST%d/%s_%d.png" %(file_number, dset_classes[index], count), crop)
+                print("\t%s_%d : %f" %(dset_classes[index], count, score))

@@ -1,6 +1,7 @@
 import os
 import cv2
 import sys
+import csv
 import numpy as np
 
 def check_and_mkdir(in_dir):
@@ -11,9 +12,9 @@ def check_and_mkdir(in_dir):
 if __name__ == "__main__":
     check_and_mkdir('./results/bbox/')
 
-    for file_number in range(1, 22):
+    for file_number in range(1, (27+1)):
         print("| Predicting Bounding Box for TEST%d..." %file_number)
-        original_img = cv2.imread('/home/bumsoo/Data/test/CT_20/TEST%d.png' %file_number)
+        original_img = cv2.imread('/home/bumsoo/Data/test/20_CELL_TEST/TEST%d/TEST%d.png' %(file_number, file_number))
         mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
 
         ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 100, 255, cv2.THRESH_BINARY)
@@ -23,6 +24,8 @@ if __name__ == "__main__":
         _, contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         count = 0
+
+        # Predictions (GREEN)
         for cnt in contours:
             area = cv2.contourArea(cnt)
 
@@ -34,5 +37,13 @@ if __name__ == "__main__":
                 # bounding box
                 x, y, w, h = cv2.boundingRect(cnt)
                 cv2.rectangle(original_img, (x,y), (x+w, y+h), (0,255,0), 2)
+
+        # Ground truth (RED)
+        with open('/home/bumsoo/Data/test/20_CELL_TEST/TEST%d/TEST%d.csv' %(file_number, file_number)) as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                x, y, w, h = map(int, row[1:])
+
+                cv2.rectangle(original_img, (x,y), (x+w, y+h), (0, 0, 255), 2)
 
         cv2.imwrite('./results/bbox/TEST%d.png' %file_number, original_img)

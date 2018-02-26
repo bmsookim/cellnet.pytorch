@@ -114,15 +114,13 @@ def generate_sliding_windows(image, stepSize, windowSize):
 
 def generate_padding_image(image, mode='cv2'):
     if (mode == 'cv2'):
-        border_x = int((args.stepSize - ((image.shape[0]-args.windowSize)%args.stepSize))/2)
-        border_y = int((args.stepSize - ((image.shape[1]-args.windowSize)%args.stepSize))/2)
-        #pad_image = cv2.copyMakeBorder(image, border_x, border_x, border_y, border_y, cv2.BORDER_CONSTANT, value=[255,255,255])
-        pad_image = cv2.copyMakeBorder(image, 0, border_x*2, 0, border_y*2, cv2.BORDER_CONSTANT, value=[255,255,255])
+        border_x = int((args.stepSize - ((image.shape[0]-args.windowSize)%args.stepSize)))
+        border_y = int((args.stepSize - ((image.shape[1]-args.windowSize)%args.stepSize)))
+        pad_image = cv2.copyMakeBorder(image, 0, border_x, 0, border_y, cv2.BORDER_CONSTANT, value=[255,255,255])
     elif (mode == 'PIL'):
         border_x = args.stepSize - ((image.size[0]-args.windowSize)%args.stepSize)
         border_y = args.stepSize - ((image.size[1]-args.windowSize)%args.stepSize)
         pad_image = Image.new("RGB", (image.size[0]+border_x, image.size[1]+border_y), color=255)
-        #pad_image.paste(image, (int(border_x/2), int(border_y/2)))
         pad_image.paste(image, (0, 0))
 
     return pad_image
@@ -182,7 +180,6 @@ if __name__ == "__main__":
 
     original_image = cv2.imread(file_name)
     PIL_image = Image.open(file_name)
-    #PIL_image = generate_padding_image(PIL_image, 'PIL')
 
     lst = generate_sliding_windows(PIL_image, args.stepSize, args.windowSize)
 
