@@ -127,6 +127,11 @@ def generate_padding_image(image, mode='cv2'):
 
     return pad_image
 
+def check_and_mkdir(in_dir):
+    if not os.path.exists(in_dir):
+        print("Creating "+in_dir+"...")
+        os.makedirs(in_dir)
+
 if __name__ == "__main__":
     # uploading the model
     print("| Loading checkpoint model for grad-CAM...")
@@ -189,7 +194,9 @@ if __name__ == "__main__":
     pbar.start()
     progress = 0
 
-    with open('logs/TEST%d.csv' %(args.testNumber), 'w') as csvfile:
+    csvname = 'logs/TEST%d.csv' %(args.testNumber) if args.subtype == None else 'logs/TEST%d_%s.csv' %(args.testNumber, args.subtype)
+
+    with open(csvname, 'w') as csvfile:
         fieldnames = ['location', 'prediction', 'score']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -220,7 +227,7 @@ if __name__ == "__main__":
 
                 if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
                     heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
-                elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.6):
+                elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
                     heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
                 else:
                     print(dset_classes[comp_idx], probs[item_id])
@@ -245,8 +252,6 @@ if __name__ == "__main__":
     img_cnt = 0
     image = original_image
 
-    #trim = original_image
-    #image = generate_padding_image(image, 'cv2')
     blank_canvas = np.ones_like(image) # blank_canvas to draw the mapo
     original_image = image
     image = cv2.transpose(image)
@@ -269,23 +274,23 @@ if __name__ == "__main__":
                 target_window += f_map
                 img_cnt += 1
 
-                # Code to see the window flow, activate the f_map.fill code above
-                # cv2.imwrite("./results/%s.png" %(str(img_cnt)), blank_canvas)
-                # gcam.save("./results/%s.png" %(str(img_cnt)), blank_canvas, original_image)
-
                 if (img_cnt >= len(heatmap_lst)):
-                    #blank_canvas[blank_canvas < 100] = 0
+                    check_and_mkdir('./results/heatmaps/')
+                    check_and_mkdir('./results/masks/')
                     blank_canvas = cv2.GaussianBlur(blank_canvas, (15,15), 0)
+
                     if args.subtype == None:
-                        save_dir = './results/%s.png' %(file_name.split(".")[-2].split("/")[-1])
-                        save_mask = './masks/%s.png' %(file_name.split(".")[-2].split("/")[-1])
+                        save_dir = './results/heatmaps/%s.png' %(file_name.split(".")[-2].split("/")[-1])
+                        save_mask = './results/masks/%s.png' %(file_name.split(".")[-2].split("/")[-1])
                     else:
-                        save_dir = './results/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
-                        save_mask = './masks/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
-                    #blank_canvas[:original_image.shape[0], :original_image.shape[1]]
-                    gcam.save(save_dir, blank_canvas, original_image)
-                    #gcam.save(save_dir, blank_canvas[:trim.shape[0], :trim.shape[1]], trim)#original_image)
-                    cv2.imwrite(save_mask, blank_canvas)
-                    #cv2.imwrite(save_mask, blank_canvas[:trim.shape[0], :trim.shape[1]])
+                        save_dir = './results/heatmaps/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
+                        save_mask = './results/masks/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
+
+                    # Save the grad-cam results
+                    print("| Saving Heatmap results... ")
+                    gcam.save(save_dir, blank_canvas, original_image) # save heatmaps
+                    print("| Saving Mask results... ")
+                    cv2.imwrite(save_mask, blank_canvas) # save image masks
+
                     print("| Feature map completed!")
                     sys.exit(0)
