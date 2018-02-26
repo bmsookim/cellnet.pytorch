@@ -129,13 +129,14 @@ with open(output_file, 'wb') as csvfile:
                 outputs = model(inputs)
                 softmax_res = softmax(outputs.data.cpu().numpy()[0])
                 index, score = max(enumerate(softmax_res), key=operator.itemgetter(1))
-                sorted_lst = sorted(zip(softmax_res, dset_classes), reverse=True)[:3] # Get Top-3 Results
+                # sorted_lst = sorted(zip(softmax_res, dset_classes), reverse=True)[:3] # Get Top-3 Results
 
-                # print(file_path + "," + str(score))
+                print(file_path + "," + str(dset_classes[index]) + ": " + str(score))
+                """
                 if (file_path.split("/")[-2] != dset_classes[index]):
                     print(file_path + "\t" + str(dset_classes[index]) + "\t" + str(score)) # print wrong answers.
                 else:
                     cor += 1
+                """
 
                 writer.writerow({'file_name': file_path, 'prediction':dset_classes[index]}); tot += 1
-                print(sorted_lst)

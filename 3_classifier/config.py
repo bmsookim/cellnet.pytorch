@@ -4,20 +4,18 @@
 name = 'WBC_CAD'
 data_dir = '/home/mnt/datasets/'
 aug_dir = '/home/bumsoo/Data/split/'
-#test_dir = '/home/bumsoo/Data/test/'
-test_dir = '../4_detector/cropped/TEST2'
 
+# Databases for each formats
 data_base = data_dir + name
 aug_base = aug_dir + name
-#test_base = test_dir + name
-test_base = test_dir
+test_base = '../4_detector/results/cropped/'
 
 # model option
 batch_size = 16
-num_epochs = 100
-lr_decay_epoch=20
+num_epochs = 40
+lr_decay_epoch=15
 feature_size = 500
 
 # Global meanstd
-mean = [0.75463778785473834, 0.56780725361811946, 0.58062158698797872]
-std = [0.20444535075070902, 0.29024798792431272, 0.25889799194820046]
+mean = [0.76068656077103536, 0.58102377925859161, 0.59144916648061485]
+std = [0.20279549420263882, 0.28521133531479254, 0.25443677082110039]

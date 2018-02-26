@@ -39,6 +39,7 @@ def save_sliding_windows(in_dir, out_dir, stepSize, windowSize):
             if ff.is_image(f):
                 file_path = os.path.join(subdir, f)
                 image = cv2.imread(file_path)
+                windowSize = random.randint(80, 100)
                 #print(image.shape)
 
                 #image = generate_padding_image(image, stepSize, windowSize)
@@ -61,7 +62,7 @@ def pick_random_slides(in_dir, out_dir):
     path, dirs, files = os.walk(in_dir).next()
     file_count = len(files)
 
-    lst = random.sample(range(0, file_count), (700-377+25))
+    lst = random.sample(range(0, file_count), (1000-377+25))
 
     for file_num in lst:
         file_path = os.path.join(in_dir, "Crop_%d.png" %file_num)
@@ -73,16 +74,14 @@ def pick_random_slides(in_dir, out_dir):
 
 if __name__ == "__main__":
     # for atypical sets
-    in_dir = "/home/bumsoo/Junhyun/atypical"
-    out_dir = "/home/bumsoo/Data/resized/RBC/RBC"
+    #in_dir = "/home/bumsoo/Junhyun/atypical"
+    #out_dir = "/home/bumsoo/Data/resized/RBC/RBC"
 
     # for crop
-    #in_dir = "/home/bumsoo/Junhyun/smudge"
-    #out_dir = "/home/bumsoo/Data/resized/Cropped" #os.path.join(cf.resized_base, "RBC")
+    #in_dir = "/home/bumsoo/Junhyun/smudge"; out_dir = "/home/bumsoo/Data/resized/Cropped" #os.path.join(cf.resized_base, "RBC")
 
     # for random pick
-    in_dir = "/home/bumsoo/Data/resized/Cropped"
-    out_dir = "/home/bumsoo/Data/resized/RBC/RBC"
+    in_dir = "/home/bumsoo/Data/resized/Cropped"; out_dir = "/home/bumsoo/Data/resized/RBC/RBC"
 
     #change_img_dir(in_dir, out_dir)
     #save_sliding_windows(in_dir, out_dir, stepSize=50, windowSize=100)
