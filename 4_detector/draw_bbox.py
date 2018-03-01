@@ -39,7 +39,7 @@ if __name__ == "__main__":
                 cv2.rectangle(original_img, (x,y), (x+w, y+h), (0,255,0), 2)
 
         # Ground truth (RED)
-        with open('/home/bumsoo/Data/test/20_CELL_TEST/TEST%d/TEST%d.csv' %(file_number, file_number)) as csvfile:
+        with open('/home/bumsoo/Data/test/Test_tight/TEST%d/TEST%d.csv' %(file_number, file_number)) as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
                 x, y, w, h = map(int, row[1:])

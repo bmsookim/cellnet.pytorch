@@ -131,7 +131,8 @@ with open(output_file, 'wb') as csvfile:
                 index, score = max(enumerate(softmax_res), key=operator.itemgetter(1))
                 # sorted_lst = sorted(zip(softmax_res, dset_classes), reverse=True)[:3] # Get Top-3 Results
 
-                print(file_path + "," + str(dset_classes[index]) + ": " + str(score))
+                if not (dset_classes[index] in file_path.split("/")[-1]):
+                    print(file_path + "," + str(dset_classes[index]) + ": " + str(score))
                 """
                 if (file_path.split("/")[-2] != dset_classes[index]):
                     print(file_path + "\t" + str(dset_classes[index]) + "\t" + str(score)) # print wrong answers.

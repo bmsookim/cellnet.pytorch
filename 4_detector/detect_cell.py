@@ -68,8 +68,10 @@ def getNetwork(args):
         file_name = 'vgg-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
         file_name = 'resnet-%s' %(args.depth)
+    elif (args.net_type == 'densenet'):
+        file_name = 'densenet-%s' %(args.depth)
     else:
-        print('[Error]: Network should be either [alexnet / vgget / resnet]')
+        print('[Error]: Network should be either [alexnet / vgget / resnet / densenet]')
         sys.exit(1)
 
     return file_name
@@ -223,9 +225,9 @@ if __name__ == "__main__":
                     item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
 
                 if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
-                    heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
+                    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
                 elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
-                    heatmap_lst.append(np.uint8(np.zeros((224, 224, 3))))
+                    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
                 else:
                     print(dset_classes[comp_idx], probs[item_id])
                     writer.writerow({
@@ -238,7 +240,8 @@ if __name__ == "__main__":
                     gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
                     output = gcam.generate(target_layer='layer4.2') # Needs more testout
 
-                    heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
+                    #heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
+                    heatmap = output
                     heatmap_lst.append(heatmap)
                 pbar.update(progress)
                 progress += 1
@@ -249,8 +252,9 @@ if __name__ == "__main__":
     img_cnt = 0
     image = original_image
 
-    blank_canvas = np.ones_like(image) # blank_canvas to draw the mapo
+    blank_canvas = np.zeros((image.shape[0], image.shape[1])) # blank_canvas to draw the mapo
     original_image = image
+    original_image = cv2.cvtColor(original_image, cv2.COLOR_RGB2BGR)
     image = cv2.transpose(image)
 
     for x in xrange(0, image.shape[0], args.stepSize):
@@ -274,7 +278,9 @@ if __name__ == "__main__":
                 if (img_cnt >= len(heatmap_lst)):
                     check_and_mkdir('./results/heatmaps/')
                     check_and_mkdir('./results/masks/')
+                    blank_canvas[blank_canvas > 1] = 1
                     blank_canvas = cv2.GaussianBlur(blank_canvas, (15,15), 0)
+                    blank_save = np.uint8(blank_canvas * 255.0)
 
                     if args.subtype == None:
                         save_dir = './results/heatmaps/%s.png' %(file_name.split(".")[-2].split("/")[-1])
@@ -287,7 +293,7 @@ if __name__ == "__main__":
                     print("| Saving Heatmap results... ")
                     gcam.save(save_dir, blank_canvas, original_image) # save heatmaps
                     print("| Saving Mask results... ")
-                    cv2.imwrite(save_mask, blank_canvas) # save image masks
+                    cv2.imwrite(save_mask, blank_save) # save image masks
 
                     print("| Feature map completed!")
                     sys.exit(0)

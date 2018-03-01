@@ -45,6 +45,7 @@ print('\n[Phase 1] : Data Preperation')
 
 data_transforms = {
     'train': transforms.Compose([
+        #transforms.Scale(236),
         transforms.RandomSizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
@@ -104,10 +105,15 @@ def getNetwork(args):
             net = models.densenet169(pretrained=args.finetune)
         file_name = 'densenet-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
-        net = resnet(args.finetune, args.depth)
+        #net = resnet(args.finetune, args.depth)
+
+        checkpoint = torch.load('./checkpoint/ALPS/resnet-50.t7')
+        net = checkpoint['model'].module
+        print(net)
+
         file_name = 'resnet-%s' %(args.depth)
     else:
-        print('Error : Network should be either [alexnet / squeezenet / vggnet / resnet]')
+        print('Error : Network should be either [alexnet / vggnet / resnet / densenet]')
         sys.exit(1)
 
     return net, file_name
