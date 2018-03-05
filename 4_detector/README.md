@@ -8,7 +8,7 @@ Moreover, compared with classification labels which only needs a single class ca
 localization needs much more careful labelling including the bounding box regression answers and classification answers.
 
 This module is designed to overcome this issue, by performing accurate localization through solely trained classification wieghts.
-This is done by implementing an activation map, processed with a method called [Grad-CAM++]().
+This is done by implementing an activation map, processed with a method called [Grad-CAM](http://openaccess.thecvf.com/content_ICCV_2017/papers/Selvaraju_Grad-CAM_Visual_Explanations_ICCV_2017_paper.pdf).
 
 ## Grad-CAM++
 The basic idea of Grad-CAM++ is ....
@@ -66,14 +66,14 @@ Supporting networks
 
 ## Results
 
-###1. Neutrophil Segmented
-
-[:TODO] Random Cropping and Merging
-
 - Original Image
 
-<p align="left"><img width="40%" src=(../imgs/detection/before.png)></p>
+![alt_tag](../imgs/input.png)
 
 - Grad-CAM Image
 
-<p align="left"><img width="40%" src=(../imgs/detection/after.png)></p>
+![alt_tag](../imgs/heatmap_out.png)
+
+- Inference & IoU with ground truth
+
+![alt_tag](../imgs/output.png)
