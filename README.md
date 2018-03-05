@@ -70,7 +70,9 @@ This test also helps doctor monitor the effectiveness of chemotheraphy or radiat
 
 ## White Blood Cell Detections
 
-For the detection of white blood cells without location annotations, we first need to train a CNN model on patch cell images. The images will be trained on 9 classes(Monocytes; Eosinophils; Basophils; Lymphocytes; Atypical Lymphocytes; Neutrophil Bands; Neutrophil Segmented; RBCs).
+For the detection of white blood cells without location annotations, we first need to train a CNN model on patch cell images. The images will be trained on 9 classes(Monocytes; Eosinophils; Basophils; Lymphocytes; Atypical Lymphocytes; Neutrophil Bands; Neutrophil Segmented; RBCs). The detection is consisted of 3 phases.
+
+![alt_tag](./imgs/figure.png)
 
 ### STEP 1 : Data preperation
 You can prepare your data with the [preprocessing module](./1_preprocessor).
