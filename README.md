@@ -42,9 +42,10 @@ git clone https://github.com/meliketoy/cellnet.pytorch
 
 A complete blood count(CBC) is a test that measures the cells that make up your blood: red blood cells, white blood cells, and platelets.
 
-Out of the 3 tests, in this paper we mainly focus on the RBC cell count and WBC cell count. Details and specifics of each will be described below.
+Out of the 3 tests, in this paper we mainly focus on the WBC cell count. Details and specifics of each will be described below.
 
 ### Red Blood Cell Count
+[FUTURE WORKS]
 
 A red blood cell count(also known as the erythrocyte count) is a blood test to find out how many red blood cells(RBCs) you have.
 
