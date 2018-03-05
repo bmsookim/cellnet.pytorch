@@ -38,7 +38,7 @@ git clone https://github.com/meliketoy/cellnet.pytorch
 ```
 
 ## Differential Blood Cell Count, Why is it important?
-[!alt_tag](./imgs/input.png)
+![alt_tag](./imgs/input.png)
 
 A complete blood count(CBC) is a test that measures the cells that make up your blood: red blood cells, white blood cells, and platelets.
 
@@ -53,7 +53,7 @@ It is important because RBCs contain hemoglobin, which carries oxygen to your bo
 Having higher number of RBCs might indicate symptoms such as polycythemia, while decreased number of RBCs can lead to diagnosis of anemia.
 
 ### White Blood Cell Count
-[!alt_tag](./imgs/output.png)
+![alt_tag](./imgs/output.png)
 
 A white blood cell count(also known as the leukocyte count) is a test that measures the number of white blood cells in your body. There are several types of white blood cells, and your blood usually contains a percentage of each type.
 
@@ -85,7 +85,7 @@ $ python main
 > Enter mode name : meanstd # This will print out the meanstd value of your train set.
 ```
 
-Copy the value of meanstd in the third line, and paste it in the configurations of each [module 3](./3_classifier/config.py) and [module 4](./4_detector/config.py).
+Copy the value of meanstd in the third line, and paste it in the configurations of each [module 3](./3_classifier/config.py) and [module 4](./4_detector/config.py). View the [README-preprocessor](./1_preprocessor/README.md) for further instructions.
 
 ### STEP 2 : Classification
 Then, in the [classifier module](./3_classifier), run the line below
@@ -94,7 +94,7 @@ $ ./scripts/train/resnet
 ```
 
 This will fine-tune a pre-trained resnet-50 model on your blood cell dataset.
-To train your network on different models & layers, view the [scripts](./3_classifier/scripts).
+To train your network on different models & layers, view the [scripts](./3_classifier/scripts). See [README-classifier](./3_classifier/README.md) for further instructions.
 
 ### STEP 3 : Detection
 After you have trained your model, there will be a model saved in the [checkpoint directory](./3_classifier/checkpoints).
@@ -106,3 +106,5 @@ The heatmap generation for each of the test data can be done by running,
 ```bash
 ./scripts/detect.sh
 ```
+
+See [README-detector](./4_detector/README.md) for further instructions.
