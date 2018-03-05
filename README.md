@@ -74,7 +74,7 @@ For the detection of white blood cells without location annotations, we first ne
 
 ![alt_tag](./imgs/figure.png)
 
-### STEP 1 : Data preperation
+### STEP 0 : Data preperation
 You can prepare your data with the [preprocessing module](./1_preprocessor).
 In the [configuration file](./1_preprocessor/config.py), set the directory to the full image patch data.
 The patch blood cell data can be downloaded through [this link]().
@@ -90,7 +90,7 @@ $ python main
 
 Copy the value of meanstd in the third line, and paste it in the configurations of each [module 3](./3_classifier/config.py) and [module 4](./4_detector/config.py). View the [README-preprocessor](./1_preprocessor/README.md) for further instructions.
 
-### STEP 2 : Classification
+### STEP 1 : Classification
 Then, in the [classifier module](./3_classifier), run the line below
 ```bash
 $ ./scripts/train/resnet
@@ -99,7 +99,7 @@ $ ./scripts/train/resnet
 This will fine-tune a pre-trained resnet-50 model on your blood cell dataset.
 To train your network on different models & layers, view the [scripts](./3_classifier/scripts). See [README-classifier](./3_classifier/README.md) for further instructions.
 
-### STEP 3 : Detection
+### STEP 2 : Detection
 After you have trained your model, there will be a model saved in the [checkpoint directory](./3_classifier/checkpoints).
 The files in directory will be automatically updated in the detector module, searched by the directory name of your training set.
 
@@ -107,10 +107,30 @@ In the [configuration of module 4](./4_detector/config.py), match the 'name' var
 
 The heatmap generation for each of the test data can be done by running,
 ```bash
-./scripts/detect.sh
+$ ./scripts/detect.sh
 ```
 
 This will generate a heatmap which will look like
 ![alt_tag](./imgs/heatmap_out.png)
 
 See [README-detector](./4_detector/README.md) for further instructions.
+
+### STEP 3 : Result Filtering
+Finally, the bounding boxes extracted from the heatmap will be fed again in order to obtain a hierarchy attentive classification of the predicted regions.
+
+You can obtain the inferenced regions with its class predictions and location wrote in csv formats at ["./results/inferenced"](./4_detector/results/inferenced) by running,
+
+```bash
+$ ./scripts/inference.sh
+```
+
+This will give you a region and a prediction such as,
+![alt_tag](./imgs/prediction.png)
+
+If you want to change the model configuration, see the [script](./4_detector/scripts/inference.sh) or the [configuration file](./4_detector/config.py)
+
+## Evaluations
+You can obtain the image along with the IoU information by running,
+```bash
+$ python compute_IoU.py
+```
