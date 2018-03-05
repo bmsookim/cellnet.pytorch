@@ -3,13 +3,14 @@
 -------------------------------------------------------------------------------------
 
 This is the repository for Pytorch Implementation of the
-MICCAI-2018 paper, "Non-guided Automatic Blood Cell Counter with Deep Convolutional Neural Networks".
+MICCAI-2018 paper, "Hierarchy Attentive Luekocyte Detection without Location Annotation".
 If you have any issues regarding this repository or the paper, please contact meliketoy@gmail.com.
 
 Authors
 - Bumsoo Kim
 - Junhyun Lee
 - Hyunjoo Choi
+- Hwejin Jung
 - Chaeseung Lim
 - Jaewoo Kang
 
@@ -20,6 +21,7 @@ You can see the paper [here]().
 - [#2 Parser](./2_parser)
 - [#3 Classifier](./3_classifier)
 - [#4 Detector](./4_detector)
+- [#6 Baseline](./6_baseline)
 
 ## Requirements
 See the [installation instruction](INSTALL.md) for a step-by-step installation guide.
@@ -36,14 +38,13 @@ git clone https://github.com/meliketoy/cellnet.pytorch
 ```
 
 ## Differential Blood Cell Count, Why is it important?
-[TODO : CBC image]
+[!alt_tag](./imgs/input.png)
 
 A complete blood count(CBC) is a test that measures the cells that make up your blood: red blood cells, white blood cells, and platelets.
 
 Out of the 3 tests, in this paper we mainly focus on the RBC cell count and WBC cell count. Details and specifics of each will be described below.
 
 ### Red Blood Cell Count
-[TODO : Show the classes of RBC that could appear within the image]
 
 A red blood cell count(also known as the erythrocyte count) is a blood test to find out how many red blood cells(RBCs) you have.
 
@@ -52,7 +53,7 @@ It is important because RBCs contain hemoglobin, which carries oxygen to your bo
 Having higher number of RBCs might indicate symptoms such as polycythemia, while decreased number of RBCs can lead to diagnosis of anemia.
 
 ### White Blood Cell Count
-[TODO : Show the classes of WBC that could appear within the image]
+[!alt_tag](./imgs/output.png)
 
 A white blood cell count(also known as the leukocyte count) is a test that measures the number of white blood cells in your body. There are several types of white blood cells, and your blood usually contains a percentage of each type.
 
@@ -64,7 +65,44 @@ Having a higher or lower number of WBCs than normal may be an indication of an u
 This test also helps doctor monitor the effectiveness of chemotheraphy or radiation treatment in people with cancer.
 
 ## Previous works of Blood Cell Counting.
-[TD] Research of papers for previous studies or repository for previous blood cell classification modules.
+Baseline : 
 
-## CellNet, Full Pipeline cell detection counter
-[TD] Description for the cell detection counter model.
+## White Blood Cell Detections
+
+For the detection of white blood cells without location annotations, we first need to train a CNN model on patch cell images. The images will be trained on 9 classes(Monocytes; Eosinophils; Basophils; Lymphocytes; Atypical Lymphocytes; Neutrophil Bands; Neutrophil Segmented; RBCs).
+
+### STEP 1 : Data preperation
+You can prepare your data with the [preprocessing module](./1_preprocessor).
+In the [configuration file](./1_preprocessor/config.py), set the directory to the full image patch data.
+The patch blood cell data can be downloaded through [this link]().
+
+```bash
+$ cd ./1_preprocessor
+$ python main
+
+> Enter mode name : split # This will make a train-validation split in your 'split_dir' in config.py
+> Enter mode name : check # This will print out the distribution of your split.
+> Enter mode name : meanstd # This will print out the meanstd value of your train set.
+```
+
+Copy the value of meanstd in the third line, and paste it in the configurations of each [module 3](./3_classifier/config.py) and [module 4](./4_detector/config.py).
+
+### STEP 2 : Classification
+Then, in the [classifier module](./3_classifier), run the line below
+```bash
+$ ./scripts/train/resnet
+```
+
+This will fine-tune a pre-trained resnet-50 model on your blood cell dataset.
+To train your network on different models & layers, view the [scripts](./3_classifier/scripts).
+
+### STEP 3 : Detection
+After you have trained your model, there will be a model saved in the [checkpoint directory](./3_classifier/checkpoints).
+The files in directory will be automatically updated in the detector module, searched by the directory name of your training set.
+
+In the [configuration of module 4](./4_detector/config.py), match the 'name' variable identical to the 'name' you used in your classification training data directory name.
+
+The heatmap generation for each of the test data can be done by running,
+```bash
+./scripts/detect.sh
+```

@@ -5,3 +5,4 @@ python main.py \
     --depth 50 \
     --resetClassifier \
     --finetune
+    #--testOnly

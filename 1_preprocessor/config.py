@@ -1,10 +1,9 @@
 ############# Configuration file #############
 
 # Name of dataset
-#name = 'ALPS'
-#name = 'WBC_H1'
+name = 'MICCAI_TRAIN'
 #name = 'WBC_NH'
-name = 'WBC_LH'
+#name = 'WBC_LH'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name
