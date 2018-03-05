@@ -109,6 +109,6 @@ The heatmap generation for each of the test data can be done by running,
 ```
 
 This will generate a heatmap which will look like
-![alt_tag](./imgs/heatmap.png)
+![alt_tag](./imgs/heatmap_out.png)
 
 See [README-detector](./4_detector/README.md) for further instructions.
