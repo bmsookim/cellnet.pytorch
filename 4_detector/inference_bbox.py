@@ -151,6 +151,7 @@ for file_number in range(args.start, args.finish+1):
                 if ('RBC' in dset_classes[index]):
                     print("\tRBC_%d : %f" %(count, score))
                 else:
+                    """
                     if ("Neutrophil" in dset_classes[index] and score < 0.9):
                         if h1_transform is not None:
                             img = h1_transform(Image.fromarray(crop, mode='RGB'))
@@ -185,6 +186,8 @@ for file_number in range(args.start, args.finish+1):
                         answ = dset_classes[index]
 
                     crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
+                    """
+                    answ = dset_classes[index]
                     # cv2.imwrite("./results/cropped/TEST%d/%s_%d.png" %(file_number, H1_classes[index], count), crop)
                     writer.writerow({
                         'prediction': answ,
