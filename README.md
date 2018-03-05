@@ -65,7 +65,7 @@ Having a higher or lower number of WBCs than normal may be an indication of an u
 This test also helps doctor monitor the effectiveness of chemotheraphy or radiation treatment in people with cancer.
 
 ## Previous works of Blood Cell Counting.
-Baseline : 
+- [Automatic detection and classification of leukocytes using convolutional neural networks](https://link.springer.com/article/10.1007/s11517-016-1590-x)
 
 ## White Blood Cell Detections
 
@@ -106,5 +106,8 @@ The heatmap generation for each of the test data can be done by running,
 ```bash
 ./scripts/detect.sh
 ```
+
+This will generate a heatmap which will look like
+![alt_tag](./imgs/heatmap.png)
 
 See [README-detector](./4_detector/README.md) for further instructions.

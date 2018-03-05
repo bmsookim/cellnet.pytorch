@@ -1,7 +1,7 @@
 #################### Configuration File ####################
 
 # Base directory for data formats
-name = 'ALPS'
+name = 'MICCAI_TRAIN'
 #name = 'WBC_NH'
 #name = 'WBC_LH'
 #name = 'Only_WBC'
@@ -12,7 +12,7 @@ aug_dir = '/home/bumsoo/Data/split/'
 # Databases for each formats
 data_base = data_dir + name
 aug_base = aug_dir + name
-test_base = '../4_detector/results/cropped/'
+test_base = '../4_detector/results/inferenced/'
 test_dir = aug_dir + name + '/val'
 
 # model option
@@ -32,7 +32,3 @@ std = [0.20634491876598526, 0.27042467744347987, 0.24373346183373229]
 # LH meanstd
 #mean = [0.7571956979879545, 0.55694333649406613, 0.56854173074367431]
 #std = [0.20890086199641186, 0.31668580372231542, 0.28084878897340337]
-
-# WBC meanstd
-#mean = [0.74752757166649053, 0.54054840124786485, 0.55902323083449423]
-#std = [0.20324625029185836, 0.30042473705928252, 0.26665981862946958]

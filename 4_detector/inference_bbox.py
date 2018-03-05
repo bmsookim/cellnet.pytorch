@@ -107,11 +107,13 @@ def check_and_mkdir(in_dir):
 
 for file_number in range(args.start, args.finish+1):
     print("| Predicting Box Inference for TEST%d..." %file_number)
-    original_img = cv2.imread('/home/bumsoo/Data/test/CT_20/TEST%d.png' %file_number)
+    original_img = cv2.imread('/home/bumsoo/Data/test/MICCAI_img/TEST%d.png' %file_number)
     mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
 
-    check_and_mkdir("./results/cropped/")
-    check_and_mkdir("./results/cropped/TEST%d" %file_number)
+    check_and_mkdir("./results/inferenced/")
+    check_and_mkdir("./results/inferenced/TEST%d" %file_number)
+    # check_and_mkdir("./results/cropped/")
+    # check_and_mkdir("./results/cropped/TEST%d" %file_number)
 
     ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 100, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3,3), np.uint8)
@@ -121,7 +123,7 @@ for file_number in range(args.start, args.finish+1):
 
     count = 0
 
-    with open('results/cropped/TEST%d/TEST%d.csv' %(file_number, file_number), 'w') as csvfile:
+    with open('results/inferenced/TEST%d/TEST%d.csv' %(file_number, file_number), 'w') as csvfile:
         fieldnames = ['prediction', 'x', 'y', 'w', 'h']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         for cnt in contours:
@@ -151,7 +153,6 @@ for file_number in range(args.start, args.finish+1):
                 if ('RBC' in dset_classes[index]):
                     print("\tRBC_%d : %f" %(count, score))
                 else:
-                    """
                     if ("Neutrophil" in dset_classes[index] and score < 0.9):
                         if h1_transform is not None:
                             img = h1_transform(Image.fromarray(crop, mode='RGB'))
@@ -186,8 +187,6 @@ for file_number in range(args.start, args.finish+1):
                         answ = dset_classes[index]
 
                     crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
-                    """
-                    answ = dset_classes[index]
                     # cv2.imwrite("./results/cropped/TEST%d/%s_%d.png" %(file_number, H1_classes[index], count), crop)
                     writer.writerow({
                         'prediction': answ,

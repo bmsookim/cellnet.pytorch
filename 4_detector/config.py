@@ -1,7 +1,7 @@
 #################### Configuration File ####################
 
 # Base directory for data formats
-name = 'ALPS'
+name = 'MICCAI_TRAIN'
 data_dir = '/home/mnt/datasets/'
 aug_dir = '/home/bumsoo/Data/split/'
 test_dir = '/home/bumsoo/Data/test/'
@@ -12,7 +12,7 @@ test_base = test_dir + name
 
 # model directory
 model_dir = '../3_classifier/checkpoints'
-test_dir = '/home/bumsoo/Data/test/20_CELL_TEST/TEST' # Number on the back
+test_dir = '/home/bumsoo/Data/test/MICCAI_TEST/TEST' # Number on the back
 
 # model option
 batch_size = 16
