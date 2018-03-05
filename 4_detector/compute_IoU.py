@@ -13,14 +13,15 @@ def check_and_mkdir(in_dir):
         print("Creating "+in_dir+"...")
         os.makedirs(in_dir)
 
-for i in range(1, (27+1)):
+for i in range(10, (10+1)):
     print("Calculating IOU for TEST%d..." %i)
     save_dir = './results/IOU/'; check_and_mkdir(save_dir)
     with open('./results/inferenced/TEST%d/TEST%d.csv' %(i,i)) as pred_csv:
     #thresh = 200
     #with open('./results/baseline/%d/TEST%d/TEST%d.csv' %(thresh,i,i)) as pred_csv:
         with open('/home/bumsoo/Data/test/MICCAI_TEST/TEST%d/TEST%d.csv' %(i,i)) as answ_csv:
-            img = cv2.imread('/home/bumsoo/Data/test/MICCAI_img/TEST%d.png' %i)
+            #img = cv2.imread('/home/bumsoo/Data/test/MICCAI_img/TEST%d.png' %i)
+            img = cv2.imread('./results/heatmaps/TEST%d.png' %i)
             pred_reader = csv.reader(pred_csv)
             answ_reader = csv.reader(answ_csv)
 
@@ -66,13 +67,15 @@ for i in range(1, (27+1)):
 
                     IOU = float(interArea) / float(unionArea)
                     if (once > 0):
-                        cv2.putText(img, str(label), (B_x, B_y),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,0), 2, cv2.LINE_AA)
-                        cv2.rectangle(img, (B_x, B_y), (B_x+B_w, B_y+B_h), (255, 0, 0), 2)
+                        pass
+                        #cv2.putText(img, str(label), (B_x, B_y),
+                        #        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,0), 2, cv2.LINE_AA)
+                        #cv2.rectangle(img, (B_x, B_y), (B_x+B_w, B_y+B_h), (255, 0, 0), 2)
                     if(IOU != 0.0):
-                        cv2.rectangle(img, (in_x1, in_y1), (in_x2, in_y2), (0,0,255), 2)
-                        cv2.putText(img, str(IOU), (in_x1+in_w/2, in_y1 + in_h/2),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,255), 2, cv2.LINE_AA)
+                        pass
+                        #cv2.rectangle(img, (in_x1, in_y1), (in_x2, in_y2), (0,0,255), 2)
+                        #cv2.putText(img, str(IOU), (in_x1+in_w/2, in_y1 + in_h/2),
+                                #cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,255), 2, cv2.LINE_AA)
 
                 once = 0
 
