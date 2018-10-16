@@ -93,7 +93,7 @@ Copy the value of meanstd in the third line, and paste it in the configurations 
 ### STEP 1 : Classification
 Then, in the [classifier module](./3_classifier), run the line below
 ```bash
-$ ./scripts/train/resnet
+$ ./scripts/train/resnet.sh
 ```
 
 This will fine-tune a pre-trained resnet-50 model on your blood cell dataset.

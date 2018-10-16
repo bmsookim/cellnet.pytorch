@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
 parser.add_argument('--start', default=1, type=int, help='starting index')
-parser.add_argument('--finish', default=21, type=int, help='finishing index')
+parser.add_argument('--finish', default=5, type=int, help='finishing index')
 args = parser.parse_args()
 
 # Phase 1 : Model Upload
@@ -61,9 +61,9 @@ print("| Loading checkpoint model for crop inference...")
 assert os.path.isdir('../3_classifier/checkpoint'),'[Error]: No checkpoint directory found!'
 assert os.path.isdir('../3_classifier/checkpoint/'+trainset_dir),'[Error]: There is no model weight to upload!'
 file_name = getNetwork(args)
-checkpoint = torch.load('../3_classifier/checkpoint/'+trainset_dir+file_name+'.t7')
-checkpoint_nh = torch.load('../3_classifier/checkpoint/WBC_NH/'+file_name+'.t7')
-checkpoint_lh = torch.load('../3_classifier/checkpoint/WBC_LH/'+file_name+'.t7')
+checkpoint = torch.load('../3_classifier/checkpoint/bak/'+trainset_dir+file_name+'.t7')
+checkpoint_nh = torch.load('../3_classifier/checkpoint/bak/WBC_NH/'+file_name+'.t7')
+checkpoint_lh = torch.load('../3_classifier/checkpoint/bak/WBC_LH/'+file_name+'.t7')
 model = checkpoint['model']
 model_NH = checkpoint_nh['model']
 model_LH = checkpoint_lh['model']
@@ -107,11 +107,15 @@ def check_and_mkdir(in_dir):
 
 for file_number in range(args.start, args.finish+1):
     print("| Predicting Box Inference for TEST%d..." %file_number)
-    original_img = cv2.imread('/home/bumsoo/Data/test/MICCAI_img/TEST%d.png' %file_number)
-    mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
+    #original_img = cv2.imread('/home/bumsoo/Data/test/MICCAI_img/TEST%d.png' %file_number)
+    #mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
+    original_img = cv2.imread('/home/bumsoo/Data/hyunjoo/test%d.jpg' %file_number)
+    mask_img = cv2.imread('./results/masks/test%d.png' %file_number)
+    bbox_img = original_img
 
     check_and_mkdir("./results/inferenced/")
     check_and_mkdir("./results/inferenced/TEST%d" %file_number)
+    check_and_mkdir("./results/inference_bbox/")
     # check_and_mkdir("./results/cropped/")
     # check_and_mkdir("./results/cropped/TEST%d" %file_number)
 
@@ -122,6 +126,23 @@ for file_number in range(args.start, args.finish+1):
     _, contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     count = 0
+
+    with open('/home/bumsoo/Data/test/MICCAI_TEST/TEST%d/TEST%d.csv' %(file_number,file_number)) as answ_csv:
+        answ_reader = csv.reader(answ_csv)
+
+        lst_B = []
+
+        for row in answ_reader:
+            lst_B.append(row)
+            label = row[0]
+
+        for comp_B in lst_B:
+            B_x, B_y, B_w, B_h = map(int, comp_B[1:])
+            label = comp_B[0]
+
+            cv2.putText(bbox_img, str(label), (B_x, B_y),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,255), 2, cv2.LINE_AA)
+            cv2.rectangle(bbox_img, (B_x, B_y), (B_x+B_w, B_y+B_h), (0, 0, 255), 2)
 
     with open('results/inferenced/TEST%d/TEST%d.csv' %(file_number, file_number), 'w') as csvfile:
         fieldnames = ['prediction', 'x', 'y', 'w', 'h']
@@ -150,10 +171,12 @@ for file_number in range(args.start, args.finish+1):
                 index, score = max(enumerate(softmax_res), key=operator.itemgetter(1))
 
                 count += 1
-                if ('RBC' in dset_classes[index]):
-                    print("\tRBC_%d : %f" %(count, score))
+                #if ('RBC' in dset_classes[index]):
+                #    print("\tRBC_%d : %f" %(count, score))
+                if 1==2:
+                    pass
                 else:
-                    if ("Neutrophil" in dset_classes[index] and score < 0.9):
+                    if ("Neutrophil" in dset_classes[index] and score < 0.7):
                         if h1_transform is not None:
                             img = h1_transform(Image.fromarray(crop, mode='RGB'))
                         inputs = img
@@ -168,7 +191,7 @@ for file_number in range(args.start, args.finish+1):
                         idx, sc = max(enumerate(hr_softmax), key=operator.itemgetter(1))
 
                         answ = H1_classes[idx]
-                    elif "Lymphocyte" in dset_classes[index] and score < 0.9:
+                    elif "Lymphocyte" in dset_classes[index] and score < 0.7:
                         if h2_transform is not None:
                             img = h2_transform(Image.fromarray(crop, mode='RGB'))
                         inputs = img
@@ -195,5 +218,10 @@ for file_number in range(args.start, args.finish+1):
                         'w': w,
                         'h': h
                     })
+
                     print("\t%s_%d : %f" %(answ, count, score))
                     #print('\t%s_%d : %f' %(dset_classes[index], count, score))
+                    cv2.putText(bbox_img, str(answ), (x, y+h),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
+                    cv2.rectangle(bbox_img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    cv2.imwrite('./results/inference_bbox/TEST%d.png' %file_number, bbox_img)

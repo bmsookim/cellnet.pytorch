@@ -27,8 +27,8 @@ print('\n[Test Phase] : Model Weight Upload')
 use_gpu = torch.cuda.is_available()
 
 # upload labels
-data_dir = cf.aug_dir+'Only_WBC'
-trainset_dir = 'Only_WBC/'
+data_dir = cf.aug_dir+'MICCAI_TRAIN'
+trainset_dir = 'MICCAI_TRAIN/'
 dsets = datasets.ImageFolder(data_dir, None)
 
 H = datasets.ImageFolder(os.path.join(data_dir, 'train'))
@@ -80,9 +80,9 @@ def check_and_mkdir(in_dir):
         os.makedirs(in_dir)
 
 check_and_mkdir('results/baseline/')
-background_root = '/home/bumsoo/Data/test/CT_20/'
+background_root = '/home/bumsoo/Data/test/MICCAI_img/'
 
-for thresh in [200, 1]:
+for thresh in range(0, 255, 5):
     print("| Baseline with Threshold : %d" %thresh)
     check_and_mkdir('results/baseline/%d' %thresh)
     for test_num in range(1, 27+1):

@@ -26,6 +26,7 @@ import sys
 import argparse
 import csv
 import operator
+import sys
 
 from grad_cam import *
 from time import sleep
@@ -36,6 +37,10 @@ from torch.autograd import Variable
 from PIL import Image
 from misc_functions import save_class_activation_on_image
 from grad_cam import BackPropagation, GradCAM, GuidedBackPropagation
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
@@ -177,7 +182,7 @@ if __name__ == "__main__":
     else:
         print("| Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
-    file_name = cf.test_dir + str(args.testNumber) + os.sep + ('TEST%s.png' %str(args.testNumber))
+    file_name = cf.test_img_dir + os.sep + ('TEST%s.png' %str(args.testNumber))
     print("| Opening "+file_name+"...")
 
     original_image = cv2.imread(file_name)
@@ -226,15 +231,17 @@ if __name__ == "__main__":
 
                 if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
                     heatmap_lst.append(np.uint8(np.zeros((224, 224))))
-                elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
-                    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
+                #elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
+                #    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
                 else:
-                    print(dset_classes[comp_idx], probs[item_id])
+                    #print(dset_classes[comp_idx], probs[item_id].cpu().numpy())
+                    """
                     writer.writerow({
                         'location': progress,
                         'prediction': dset_classes[comp_idx],
-                        'score': probs[item_id]
+                        'score': probs[item_id][0]
                     })
+                    """
 
                     # Grad-CAM
                     gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label

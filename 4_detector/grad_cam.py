@@ -47,7 +47,7 @@ class PropagationBase(object):
     def backward(self, idx):
         self.model.zero_grad()
         one_hot = self._encode_one_hot(idx)
-        self.preds.backward(gradient=one_hot, retain_variables=True)
+        self.preds.backward(gradient=one_hot)
 
 
 class GradCAM(PropagationBase):

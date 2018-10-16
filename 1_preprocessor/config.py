@@ -1,9 +1,10 @@
 ############# Configuration file #############
 
 # Name of dataset
-name = 'MICCAI_TRAIN'
-#name = 'WBC_NH'
-#name = 'WBC_LH'
+#name = 'Granulocytes_vs_Mononuclear'
+#name = 'Granulocytes'
+#name = 'Mononuclear'
+name = 'Lymphocyte'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name

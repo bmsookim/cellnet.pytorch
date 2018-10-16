@@ -13,10 +13,13 @@ def check_and_mkdir(in_dir):
 if __name__ == "__main__":
     check_and_mkdir('./results/bbox/')
 
-    for file_number in range(1, (27+1)):
+    for file_number in range(1, (5+1)):
         print("| Predicting Bounding Box for TEST%d..." %file_number)
-        original_img = cv2.imread("/home/bumsoo/Data/test/MICCAI_img/TEST%d.png" %file_number)
-        mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
+        #original_img = cv2.imread("/home/bumsoo/Data/test/MICCAI_img/TEST%d.png" %file_number)
+        #mask_img = cv2.imread('./results/masks/TEST%d.png' %file_number)
+
+        original_img = cv2.imread("/home/bumsoo/Data/hyunjoo/test%d.jpg" %file_number)
+        mask_img = cv2.imread('./results/masks/test%d.png' %file_number)
 
         ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 100, 255, cv2.THRESH_BINARY)
         kernel = np.ones((3,3), np.uint8)
@@ -47,4 +50,4 @@ if __name__ == "__main__":
 
                 cv2.rectangle(original_img, (x,y), (x+w, y+h), (0, 0, 255), 2)
 
-        cv2.imwrite('./results/bbox/TEST%d.png' %file_number, original_img)
+        cv2.imwrite('./results/bbox/test%d.png' %file_number, original_img)

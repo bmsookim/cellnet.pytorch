@@ -45,14 +45,14 @@ print('\n[Phase 1] : Data Preperation')
 
 data_transforms = {
     'train': transforms.Compose([
-        #transforms.Scale(236),
+        transforms.Scale(256),
         transforms.RandomSizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(cf.mean, cf.std)
     ]),
     'val': transforms.Compose([
-        transforms.Scale(224),
+        transforms.Scale(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(cf.mean, cf.std)
@@ -60,8 +60,8 @@ data_transforms = {
 }
 
 data_dir = cf.aug_base
-dataset_dir = cf.data_base.split("/")[-1] + os.sep
-print("| Preparing model trained on %s dataset..." %(cf.data_base.split("/")[-1]))
+dataset_dir = cf.name + os.sep #cf.data_base.split("/")[-1] + os.sep
+print("| Preparing model trained on %s dataset..." %(cf.name))#cf.data_base.split("/")[-1]))
 dsets = {
     x : datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
     for x in ['train', 'val']
@@ -105,12 +105,7 @@ def getNetwork(args):
             net = models.densenet169(pretrained=args.finetune)
         file_name = 'densenet-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
-        #net = resnet(args.finetune, args.depth)
-
-        checkpoint = torch.load('./checkpoint/ALPS/resnet-50.t7')
-        net = checkpoint['model'].module
-        print(net)
-
+        net = resnet(args.finetune, args.depth)
         file_name = 'resnet-%s' %(args.depth)
     else:
         print('Error : Network should be either [alexnet / vggnet / resnet / densenet]')
@@ -132,7 +127,7 @@ if (args.testOnly):
 
     if use_gpu:
         model.cuda()
-        model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
+        model = torch.nn.DataParallel(model, device_ids=[0])#range(torch.cuda.device_count()))
         cudnn.benchmark = True
 
     model.eval()
@@ -218,7 +213,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                         optimizer.step()
 
                     # Statistics
-                    running_loss += loss.data[0]
+                    running_loss += loss.item()
                     running_corrects += preds.eq(labels.data).cpu().sum()
                     tot += labels.size(0)
 
@@ -226,19 +221,19 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                         sys.stdout.write('\r')
                         sys.stdout.write('| Epoch [%2d/%2d] Iter [%3d/%3d]\t\tLoss %.4f\tAcc %.2f%%'
                                 %(epoch+1, num_epochs, batch_idx+1,
-                                    (len(dsets[phase])//cf.batch_size)+1, loss.data[0], 100.*running_corrects/tot))
+                                    (len(dsets[phase])//cf.batch_size)+1, loss.item(), 100.*running_corrects/tot))
                         sys.stdout.flush()
                         sys.stdout.write('\r')
 
                 epoch_loss = running_loss / dset_sizes[phase]
-                epoch_acc  = running_corrects / dset_sizes[phase]
+                epoch_acc  = running_corrects.double() / dset_sizes[phase]
 
                 if (phase == 'train'):
                     train_acc = epoch_acc
 
                 if (phase == 'val'):
                     print('\n| Validation Epoch #%d\t\t\tLoss %.4f\tAcc %.2f%%'
-                        %(epoch+1, loss.data[0], 100.*epoch_acc))
+                        %(epoch+1, loss.item(), 100.*epoch_acc))
 
                     if epoch_acc > best_acc :
                         print('| Saving Best model...\t\t\tTop1 %.2f%%' %(100.*epoch_acc))
@@ -302,7 +297,7 @@ if(args.resetClassifier):
 
 if use_gpu:
     model_ft = model_ft.cuda()
-    model_ft = torch.nn.DataParallel(model_ft, device_ids=range(torch.cuda.device_count()))
+    model_ft = torch.nn.DataParallel(model_ft, device_ids=[0])#range(torch.cuda.device_count()))
     cudnn.benchmark = True
 
 if __name__ == "__main__":
