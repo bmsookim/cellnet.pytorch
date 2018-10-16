@@ -3,6 +3,7 @@
 
 import csv
 import sys
+import cv2
 from os import makedirs
 from os.path import splitext,basename,exists
 from PyQt5 import QtWidgets
@@ -245,6 +246,12 @@ class Form(QtWidgets.QDialog):
     def open_image(self):
         if self.Init_open:
             self.file_name,_ = QFileDialog.getOpenFileName(self,'Open File', '.')
+            
+            if splitext(self.file_name)[-1] not in ['.png']:
+                img = cv2.imread(self.file_name)
+                self.file_name = splitext(self.file_name)[0] + '.png'
+                cv2.imwrite(self.file_name,img)
+
             self.setWindowTitle(self.file_name)
             self.pixmap_image = QtGui.QPixmap(self.file_name)
             self.pixmap_image_tmp = QtGui.QPixmap(self.file_name)
