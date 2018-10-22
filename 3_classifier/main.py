@@ -45,14 +45,14 @@ print('\n[Phase 1] : Data Preperation')
 
 data_transforms = {
     'train': transforms.Compose([
-        transforms.Scale(256),
-        transforms.RandomSizedCrop(224),
+        transforms.Resize(256),
+        transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(cf.mean, cf.std)
     ]),
     'val': transforms.Compose([
-        transforms.Scale(256),
+        transforms.Resize(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(cf.mean, cf.std)
@@ -302,5 +302,5 @@ if use_gpu:
 
 if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
-    optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.weight_decay)
+    optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=cf.momentum, weight_decay=args.weight_decay)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=cf.num_epochs)

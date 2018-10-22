@@ -4,7 +4,11 @@
 #name = 'Granulocytes_vs_Mononuclear'
 #name = 'Granulocytes'
 #name = 'Mononuclear'
-name = 'Lymphocyte'
+#name = 'Lymphocyte'
+#name = 'BC_TRAIN'
+
+# Open dataset testout
+name = 'BCCD'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name

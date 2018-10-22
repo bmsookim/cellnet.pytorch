@@ -29,7 +29,7 @@ def print_all_imgs(in_dir):
 
 # check if the given file is an image format
 def is_image(f):
-    return f.endswith(".png") or f.endswith(".jpg")
+    return f.endswith(".png") or f.endswith(".jpg") or f.endswith(".jpeg")
 
 # check if dir exists. If not, mkdir.
 def check_and_mkdir(in_dir):

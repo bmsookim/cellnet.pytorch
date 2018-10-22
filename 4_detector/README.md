@@ -10,10 +10,6 @@ localization needs much more careful labelling including the bounding box regres
 This module is designed to overcome this issue, by performing accurate localization through solely trained classification wieghts.
 This is done by implementing an activation map, processed with a method called [Grad-CAM](http://openaccess.thecvf.com/content_ICCV_2017/papers/Selvaraju_Grad-CAM_Visual_Explanations_ICCV_2017_paper.pdf).
 
-## Grad-CAM++
-The basic idea of Grad-CAM++ is ....
-[TODO]
-
 ## Basic Setups
 Open [config.py](./config.py), and edit the lines below to your data directory.
 
