@@ -174,88 +174,88 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
     print('| Training Epochs = %d' %num_epochs)
     print('| Initial Learning Rate = %f' %args.lr)
     print('| Optimizer = SGD')
-    output_file = "./logs/"+args.net_type+".csv"
+    #output_file = "./logs/"+args.net_type+".csv"
 
-    with open(output_file, 'wb') as csvfile:
-        fields = ['epoch', 'train_acc', 'val_acc']
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
-        for epoch in range(num_epochs):
-            train_acc = 0
-            val_acc = 0
-            for phase in ['train', 'val']:
+    #with open(output_file, 'wb') as csvfile:
+    fields = ['epoch', 'train_acc', 'val_acc']
+    #writer = csv.DictWriter(csvfile, fieldnames=fields)
+    for epoch in range(num_epochs):
+        train_acc = 0
+        val_acc = 0
+        for phase in ['train', 'val']:
 
-                if phase == 'train':
-                    optimizer, lr = lr_scheduler(optimizer, epoch)
-                    print('\n=> Training Epoch #%d, LR=%f' %(epoch+1, lr))
-                    model.train(True)
+            if phase == 'train':
+                optimizer, lr = lr_scheduler(optimizer, epoch)
+                print('\n=> Training Epoch #%d, LR=%f' %(epoch+1, lr))
+                model.train(True)
+            else:
+                model.train(False)
+                model.eval()
+
+            running_loss, running_corrects, tot = 0.0, 0, 0
+
+            for batch_idx, (inputs, labels) in enumerate(dset_loaders[phase]):
+                if use_gpu:
+                    inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
                 else:
-                    model.train(False)
-                    model.eval()
+                    inputs, labels = Variable(inputs), Variable(labels)
 
-                running_loss, running_corrects, tot = 0.0, 0, 0
+                optimizer.zero_grad()
 
-                for batch_idx, (inputs, labels) in enumerate(dset_loaders[phase]):
-                    if use_gpu:
-                        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
-                    else:
-                        inputs, labels = Variable(inputs), Variable(labels)
+                # Forward Propagation
+                outputs = model(inputs)
+                _, preds = torch.max(outputs.data, 1)
+                loss = criterion(outputs, labels)
 
-                    optimizer.zero_grad()
+                # Backward Propagation
+                if phase == 'train':
+                    loss.backward()
+                    optimizer.step()
 
-                    # Forward Propagation
-                    outputs = model(inputs)
-                    _, preds = torch.max(outputs.data, 1)
-                    loss = criterion(outputs, labels)
-
-                    # Backward Propagation
-                    if phase == 'train':
-                        loss.backward()
-                        optimizer.step()
-
-                    # Statistics
-                    running_loss += loss.item()
-                    running_corrects += preds.eq(labels.data).cpu().sum()
-                    tot += labels.size(0)
-
-                    if (phase == 'train'):
-                        sys.stdout.write('\r')
-                        sys.stdout.write('| Epoch [%2d/%2d] Iter [%3d/%3d]\t\tLoss %.4f\tAcc %.2f%%'
-                                %(epoch+1, num_epochs, batch_idx+1,
-                                    (len(dsets[phase])//cf.batch_size)+1, loss.item(), 100.*running_corrects/tot))
-                        sys.stdout.flush()
-                        sys.stdout.write('\r')
-
-                epoch_loss = running_loss / dset_sizes[phase]
-                epoch_acc  = running_corrects.double() / dset_sizes[phase]
+                # Statistics
+                running_loss += loss.item()
+                running_corrects += preds.eq(labels.data).cpu().sum()
+                tot += labels.size(0)
 
                 if (phase == 'train'):
-                    train_acc = epoch_acc
+                    sys.stdout.write('\r')
+                    sys.stdout.write('| Epoch [%2d/%2d] Iter [%3d/%3d]\t\tLoss %.4f\tAcc %.2f%%'
+                            %(epoch+1, num_epochs, batch_idx+1,
+                                (len(dsets[phase])//cf.batch_size)+1, loss.item(), 100.*running_corrects/tot))
+                    sys.stdout.flush()
+                    sys.stdout.write('\r')
 
-                if (phase == 'val'):
-                    print('\n| Validation Epoch #%d\t\t\tLoss %.4f\tAcc %.2f%%'
-                        %(epoch+1, loss.item(), 100.*epoch_acc))
+            epoch_loss = running_loss / dset_sizes[phase]
+            epoch_acc  = running_corrects.double() / dset_sizes[phase]
 
-                    if epoch_acc > best_acc :
-                        print('| Saving Best model...\t\t\tTop1 %.2f%%' %(100.*epoch_acc))
-                        best_acc = epoch_acc
-                        best_model = copy.deepcopy(model)
-                        state = {
-                            'model': best_model,
-                            'acc':   epoch_acc,
-                            'epoch':epoch,
-                        }
-                        if not os.path.isdir('checkpoint'):
-                            os.mkdir('checkpoint')
-                        save_point = './checkpoint/'+dataset_dir
-                        if not os.path.isdir(save_point):
-                            os.mkdir(save_point)
-                        torch.save(state, save_point+file_name+'.t7')
+            if (phase == 'train'):
+                train_acc = epoch_acc
 
-                    val_acc = epoch_acc
+            if (phase == 'val'):
+                print('\n| Validation Epoch #%d\t\t\tLoss %.4f\tAcc %.2f%%'
+                    %(epoch+1, loss.item(), 100.*epoch_acc))
 
-            writer.writerow({'epoch': epoch+1, 'train_acc': train_acc, 'val_acc': val_acc})
+                if epoch_acc > best_acc :
+                    print('| Saving Best model...\t\t\tTop1 %.2f%%' %(100.*epoch_acc))
+                    best_acc = epoch_acc
+                    best_model = copy.deepcopy(model)
+                    state = {
+                        'model': best_model,
+                        'acc':   epoch_acc,
+                        'epoch':epoch,
+                    }
+                    if not os.path.isdir('checkpoint'):
+                        os.mkdir('checkpoint')
+                    save_point = './checkpoint/'+dataset_dir
+                    if not os.path.isdir(save_point):
+                        os.mkdir(save_point)
+                    torch.save(state, save_point+file_name+'.t7')
 
-    csvfile.close()
+                val_acc = epoch_acc
+
+        #writer.writerow({'epoch': epoch+1, 'train_acc': train_acc, 'val_acc': val_acc})
+
+    #csvfile.close()
     time_elapsed = time.time() - since
     print('\nTraining completed in\t{:.0f} min {:.0f} sec'. format(time_elapsed // 60, time_elapsed % 60))
     print('Best validation Acc\t{:.2f}%'.format(best_acc*100))

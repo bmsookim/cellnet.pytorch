@@ -26,8 +26,9 @@ import sys
 import argparse
 import csv
 import operator
-import sys
+import pickle
 
+from functools import partial
 from grad_cam import *
 from time import sleep
 from progressbar import *
@@ -138,12 +139,23 @@ def check_and_mkdir(in_dir):
         os.makedirs(in_dir)
 
 if __name__ == "__main__":
+    try:
+        # Python 2
+        xrange
+    except NameError:
+        xrange = range
+
     # uploading the model
     print("| Loading checkpoint model for grad-CAM...")
     assert os.path.isdir('../3_classifier/checkpoint'),'[Error]: No checkpoint directory found!'
     assert os.path.isdir('../3_classifier/checkpoint/'+trainset_dir),'[Error]: There is no model weight to upload!'
     file_name = getNetwork(args)
-    checkpoint = torch.load('../3_classifier/checkpoint/'+trainset_dir+file_name+'.t7')
+    if (sys.version_info > (3,0)):
+        pickle.load = partial(pickle.load, encoding='latin1')
+        pickle.Unpickler = partial(pickle.Unpickler, encoding='latin1')
+        checkpoint = torch.load('../3_classifier/checkpoint/'+trainset_dir+file_name+'.t7', pickle_module=pickle)
+    else:
+        checkpoint = torch.load('../3_classifier/checkpoint/'+trainset_dir+file_name+'.t7')
     model = checkpoint['model']
 
     if use_gpu:
@@ -167,7 +179,7 @@ if __name__ == "__main__":
     ])
 
     #@ Code for extracting a grad-CAM region for a given class
-    gcam = GradCAM(model._modules.items()[0][1], cuda=use_gpu)
+    gcam = GradCAM(list(model._modules.items())[0][1], cuda=use_gpu)
 
     print("\n[Phase 2] : Gradient Detection")
     if args.subtype != None:
@@ -182,7 +194,7 @@ if __name__ == "__main__":
     else:
         print("| Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
-    file_name = cf.test_img_dir + os.sep + ('TEST%s.png' %str(args.testNumber))
+    file_name = cf.test_dir + os.sep + ('TEST%s/TEST%s.png' %(str(args.testNumber), str(args.testNumber)))
     print("| Opening "+file_name+"...")
 
     original_image = cv2.imread(file_name)
@@ -198,60 +210,59 @@ if __name__ == "__main__":
     pbar.start()
     progress = 0
 
-    csvname = 'logs/TEST%d.csv' %(args.testNumber) if args.subtype == None else 'logs/TEST%d_%s.csv' %(args.testNumber, args.subtype)
+    #csvname = 'logs/TEST%d.csv' %(args.testNumber) if args.subtype == None else 'logs/TEST%d_%s.csv' %(args.testNumber, args.subtype)
 
-    with open(csvname, 'w') as csvfile:
-        fieldnames = ['location', 'prediction', 'score']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    #with open(csvname, 'w') as csvfile:
+    fieldnames = ['location', 'prediction', 'score']
+    #writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    #writer.writeheader()
+    for img in lst:
+        if (img.size[0] == img.size[1]): # Only consider foursquare regions
+            backg = np.asarray(img)
 
-        writer.writeheader()
-        for img in lst:
-            if (img.size[0] == img.size[1]): # Only consider foursquare regions
-                backg = np.asarray(img)
+            if test_transform is not None:
+                img = test_transform(img)
+                backg = cv2.resize(backg, (224, 224))
 
-                if test_transform is not None:
-                    img = test_transform(img)
-                    backg = cv2.resize(backg, (224, 224))
+            inputs = img[:3,:,:]
+            inputs = Variable(inputs, requires_grad=True)
 
-                inputs = img[:3,:,:]
-                inputs = Variable(inputs, requires_grad=True)
+            if use_gpu:
+                inputs = inputs.cuda()
+            inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
 
-                if use_gpu:
-                    inputs = inputs.cuda()
-                inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
+            probs, idx = gcam.forward(inputs)
 
-                probs, idx = gcam.forward(inputs)
+            if (args.subtype == None):
+                comp_idx = idx[0]
+                item_id = 0
+            else:
+                comp_idx = WBC_id
+                item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
 
-                if (args.subtype == None):
-                    comp_idx = idx[0]
-                    item_id = 0
-                else:
-                    comp_idx = WBC_id
-                    item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
+            if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
+                heatmap_lst.append(np.uint8(np.zeros((224, 224))))
+            #elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
+            #    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
+            else:
+                #print(dset_classes[comp_idx], probs[item_id].cpu().numpy())
+                """
+                writer.writerow({
+                    'location': progress,
+                    'prediction': dset_classes[comp_idx],
+                    'score': probs[item_id][0]
+                })
+                """
 
-                if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
-                    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
-                #elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
-                #    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
-                else:
-                    #print(dset_classes[comp_idx], probs[item_id].cpu().numpy())
-                    """
-                    writer.writerow({
-                        'location': progress,
-                        'prediction': dset_classes[comp_idx],
-                        'score': probs[item_id][0]
-                    })
-                    """
+                # Grad-CAM
+                gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
+                output = gcam.generate(target_layer='layer4.2') # Needs more testout
 
-                    # Grad-CAM
-                    gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
-                    output = gcam.generate(target_layer='layer4.2') # Needs more testout
-
-                    #heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
-                    heatmap = output
-                    heatmap_lst.append(heatmap)
-                pbar.update(progress)
-                progress += 1
+                #heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
+                heatmap = output
+                heatmap_lst.append(heatmap)
+            pbar.update(progress)
+            progress += 1
     pbar.finish()
 
     print("\n[Phase 4] : Patching Up Individual Heatmaps")
