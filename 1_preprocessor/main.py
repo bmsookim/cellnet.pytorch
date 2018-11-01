@@ -30,11 +30,13 @@ def print_menu():
     print("# Mode 9 'test'   : Preprocess the test data samples")
     print("##########################################################")
 
-
 if __name__ == "__main__":
     while(1):
         print_menu()
-        mode = raw_input('\nEnter mode name : ')
+        if (sys.version_info > (3,0)):
+            mode = input('\nEnter mode name : ')
+        else:
+            mode = raw_input('\nEnter mode name : ')
 
         ##############################################
         # @ Module 1 : Print names of image data file
@@ -44,7 +46,10 @@ if __name__ == "__main__":
         #############################################
         # @ Module 2 : Read all images
         elif (mode == 'read' or mode == '2'):
-            path = raw_input('Enter [original/resized] : ')
+            if (sys.version_info > (3,0)):
+                path = input('Enter [original/resized] : ')
+            else:
+                path = raw_input('Enter [original/resized] : ')
             if (not path in ['original', 'resized']):
                 print("[Error] : Please define the mode between [original/resized].")
             else:
@@ -57,7 +62,10 @@ if __name__ == "__main__":
         # @ Module 3 : Resize and check images
         elif (mode == 'resize' or mode == '3'):
             ff.check_and_mkdir(cf.resize_base)
-            target_size = int(raw_input('Enter size : '))
+            if (sys.version_info > (3,0)):
+                target_size = int(input('Enter size : '))
+            else:
+                target_size = int(raw_input('Enter size : '))
             ff.resize_images(cf.data_base, cf.resize_dir, target_size)
             # ff.resize_and_contrast(cf.data_base, cf.resize_dir, target_size)
 

@@ -5,17 +5,17 @@
 #name = 'Granulocytes'
 #name = 'Mononuclear'
 #name = 'Lymphocyte'
-#name = 'BC_TRAIN'
+name = 'WBC'
 
 # Open dataset testout
-name = 'BCCD'
+#name = 'BCCD'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name
 
 # Base directory for augmented data formats
 resize_base = '/home/bumsoo/Data/resized/'
-split_base = '/home/bumsoo/Data/split/'
+split_base = '/home/bumsoo/Data/_train_val/'
 
 # Directory for data formats
 resize_dir = resize_base + name

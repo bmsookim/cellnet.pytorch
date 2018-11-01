@@ -17,7 +17,11 @@ import csv
 import augmentation as aug
 import config as cf
 import numpy as np
-from operator import div
+
+if (sys.version_info > (3,0)):
+    from operator import truediv as div
+else:
+    from operator import div
 
 # print all the name of images in the directory.
 def print_all_imgs(in_dir):
@@ -195,8 +199,8 @@ def train_mean(split_dir):
                 for channel in range(3):
                     train_mean_lst[channel] += img[:,:,channel].mean()
 
-    mean_map = map(div, train_mean_lst, [train_img_num, train_img_num, train_img_num])
-    return map(div, mean_map, [255.0, 255.0, 255.0])
+    mean_map = list(map(div, train_mean_lst, [train_img_num, train_img_num, train_img_num]))
+    return list(map(div, mean_map, [255.0, 255.0, 255.0]))
 
 def train_std(split_dir, train_mean):
     train_dir = split_dir + os.sep + "train"
@@ -212,6 +216,6 @@ def train_std(split_dir, train_mean):
                 for channel in range(3):
                     train_std_lst[channel] += img[:,:,channel].var() # per image var()
 
-    std_map = map(div, train_std_lst, [train_img_num, train_img_num, train_img_num])
+    std_map = list(map(div, train_std_lst, [train_img_num, train_img_num, train_img_num]))
     std_map = np.sqrt(std_map)
-    return map(div, std_map, [255.0, 255.0, 255.0])
+    return list(map(div, std_map, [255.0, 255.0, 255.0]))
