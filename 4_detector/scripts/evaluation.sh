@@ -4,4 +4,4 @@ python evaluation.py \
     --net_type resnet \
     --depth 50 \
     --start 1 \
-    --finish 17 \
+    --finish 40 \
