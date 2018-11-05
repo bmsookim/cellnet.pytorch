@@ -235,7 +235,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                 print('\n| Validation Epoch #%d\t\t\tLoss %.4f\tAcc %.2f%%'
                     %(epoch+1, loss.item(), 100.*epoch_acc))
 
-                if epoch_acc > best_acc :
+                if epoch_acc >= best_acc :
                     print('| Saving Best model...\t\t\tTop1 %.2f%%' %(100.*epoch_acc))
                     best_acc = epoch_acc
                     best_model = copy.deepcopy(model)

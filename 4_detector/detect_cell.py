@@ -294,18 +294,19 @@ if __name__ == "__main__":
                 img_cnt += 1
 
                 if (img_cnt >= len(heatmap_lst)):
-                    check_and_mkdir('./results/heatmaps/')
-                    check_and_mkdir('./results/masks/')
+                    check_and_mkdir('./results/%s' %cf.name)
+                    check_and_mkdir('./results/%s/heatmaps/' %cf.name)
+                    check_and_mkdir('./results/%s/masks/' %cf.name)
                     blank_canvas[blank_canvas > 1] = 1
                     blank_canvas = cv2.GaussianBlur(blank_canvas, (15,15), 0)
                     blank_save = np.uint8(blank_canvas * 255.0)
 
                     if args.subtype == None:
-                        save_dir = './results/heatmaps/%s.png' %(file_name.split(".")[-2].split("/")[-1])
-                        save_mask = './results/masks/%s.png' %(file_name.split(".")[-2].split("/")[-1])
+                        save_dir = './results/%s/heatmaps/%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1])
+                        save_mask = './results/%s/masks/%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1])
                     else:
-                        save_dir = './results/heatmaps/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
-                        save_mask = './results/masks/%s_%s.png' %(file_name.split(".")[-2].split("/")[-1], args.subtype)
+                        save_dir = './results/%s/heatmaps/%s_%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1], args.subtype)
+                        save_mask = './results/%s/masks/%s_%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1], args.subtype)
 
                     # Save the grad-cam results
                     print("| Saving Heatmap results... ")
