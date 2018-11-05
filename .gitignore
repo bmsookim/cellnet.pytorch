@@ -106,5 +106,5 @@ ENV/
 # Checkpoints & logs
 *.t7
 *.csv
-!./1_preprocessor/BCCD_labels.csv
+!*/BCCD_labels.csv
 */results*/*
