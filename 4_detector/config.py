@@ -1,8 +1,8 @@
 #################### Configuration File ####################
 
 # Base directory for data formats
-name = 'Granulocytes_vs_Mononuclear'
-#name = 'WBC' # No hierarchy
+#name = 'Granulocytes_vs_Mononuclear'
+name = 'WBC' # No hierarchy
 
 data_dir = '/home/mnt/datasets/'
 aug_dir = '/home/bumsoo/Data/_train_val/'
