@@ -143,12 +143,16 @@ def compute_IoU(img, back_img, pred_csv, answ_csv):
         lst_B.append(row)
         label = row[0]
 
-    has_printed_label, count_label, IoU_lst = False, 0, []
+    has_printed_label, count_label, count_pred, IoU_lst = False, 0, 0, []
     for comp_A in lst_A:
         A_x, A_y, A_w, A_h = map(int, comp_A[1:])
         pred = comp_A[0]
 
         #print(pred)
+        if (pred == 'RBC'):
+            continue
+
+        count_pred += 1
         cv2.putText(back_img, "Pred = %s" %str(pred), (A_x+A_w, A_y+A_h),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
         cv2.rectangle(back_img, (A_x, A_y), (A_x+A_w, A_y+A_h), (0,255,0), 2)
@@ -187,10 +191,15 @@ def compute_IoU(img, back_img, pred_csv, answ_csv):
 
         has_printed_label = True
 
-    return float(sum(IoU_lst))/float(count_label), back_img
+    #return float(sum(IoU_lst))/len(IoU_lst), back_img
+    if count_pred > count_label:
+        count_gt = count_pred
+    else:
+        count_gt = count_label
+    return float(sum(IoU_lst))/float(count_gt), back_img
 
 if __name__ == "__main__":
-    for i in range(1, 3):
+    for i in range(args.start, args.finish+1):
         trainset_dir = cf.data_base.split("/")[-1]+os.sep
         dsets = datasets.ImageFolder(os.path.join(cf.aug_base, 'train'))
         dset_classes = dsets.classes
