@@ -84,6 +84,9 @@ def create_ground_truth(base, label):
     xml_dir = os.path.join(annot_dir, base+".xml")
     root, WBC_lst = parse_XML(xml_dir)
 
+    # Ground Truth
+    check_and_mkdir("/home/bumsoo/Data/_test/GroundTruth/")
+
     for element in root.findall('object'):
         name = element.find('name').text
         xmin, ymin, xmax, ymax = list(map(lambda x: int(element.find('bndbox').find(x).text),
@@ -108,9 +111,8 @@ def create_ground_truth(base, label):
             cv2.putText(img, cls, (xmin, int((ymin+ymax)/2)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
 
-    check_and_mkdir("./BCCD_Ground_Truth/")
     #if len(WBC_lst) > 1 :
-    cv2.imwrite("./BCCD_Ground_Truth/%s.png" %base, img)
+    cv2.imwrite("/home/bumsoo/Data/_test/GroundTruth/%s.png" %base, img)
 
 def construct_lst_to_dir(lst, label_dict, mode):
     """
