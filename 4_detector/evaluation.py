@@ -218,7 +218,7 @@ if __name__ == "__main__":
             print("There is no result directory")
             sys.exit(1)
 
-        img = cv2.imread('/home/bumsoo/Data/_test/Cell_Detect/TEST%d/TEST%d.png' %(i,i))
+        img = cv2.imread(cf.test_dir + 'TEST%d/TEST%d.png' %(i,i))
         mask_img = cv2.imread(in_dir + 'masks/TEST%d.png' %i)
 
         check_and_mkdir(in_dir + '/inferenced/')
@@ -227,7 +227,7 @@ if __name__ == "__main__":
             inference(img, mask_img, csvfile, model)
 
         with open(in_dir + '/inferenced/TEST%d.csv' %i, 'r') as pred_csv:
-            with open('/home/bumsoo/Data/_test/Cell_Detect/TEST%d/TEST%d.csv' %(i,i)) as answ_csv:
+            with open(cf.test_dir + 'TEST%d/TEST%d.csv' %(i,i)) as answ_csv:
                 back_img = img
                 IoU, marked_img = compute_IoU(img, back_img, pred_csv, answ_csv)
                 print("TEST#%d : Average IOU = %s" %(i, str(IoU)))

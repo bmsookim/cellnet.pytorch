@@ -12,7 +12,7 @@ aug_base = aug_dir + name
 
 # model directory
 model_dir = '../3_classifier/checkpoints'
-test_dir = '/home/bumsoo/Data/_test/Cell_Detect/' # Number on the back
+test_dir = '/home/bumsoo/Data/_test/Guro/' # Number on the back
 
 # model option
 batch_size = 16

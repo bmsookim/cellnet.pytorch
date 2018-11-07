@@ -16,11 +16,21 @@ test_txt = os.path.join(split_dir, "test.txt")
 trainval_dir = "/home/bumsoo/Data/_train_val/BCCD/"
 
 def check_and_mkdir(in_dir):
+    """
+    @ Input : in_dir
+
+    @ Function : Check if 'in_dir' exists, if not create directory
+    """
     if not os.path.exists(in_dir):
         print("Creating "+in_dir+"...")
         os.makedirs(in_dir)
 
-def read_text(in_file, has_indent=False):
+def parse_text(in_file, has_indent=False):
+    """
+    @ Input : .txt file
+
+    @ Function : Read text format file and output a list of each rows
+    """
     file_lst = []
 
     with open(in_file) as f:
@@ -33,8 +43,15 @@ def read_text(in_file, has_indent=False):
 
     return file_lst
 
-def parse_XML(xml, img, label, base):
-    targetXML = open(xml, 'r')
+def parse_XML(xml_dir):
+    """
+    @ Input : directory of XML file
+
+    @ Function : Read XML format for a single whole image annotation, and
+        1) Parse the tree and pass over the root
+        2) Return a sorted list of the WBC in 'xmin' order for propoer label match for 'BCCD_labels.csv'
+    """
+    targetXML = open(xml_dir, 'r')
     tree = parse(targetXML)
     root = tree.getroot()
     WBC_lst = []
@@ -44,7 +61,28 @@ def parse_XML(xml, img, label, base):
         if (name == 'WBC'):
             xmin = int(element.find('bndbox').find('xmin').text)
             WBC_lst.append(xmin)
+
     WBC_lst.sort()
+
+    return root, WBC_lst
+
+def create_ground_truth(base, label):
+    """
+    @ Input : base, label_dict[base]
+
+    @ Function :
+        base -> img, xml
+        Draw a bounding box represented ground truth for the given image & annotation
+    """
+    global image_dir, annot_dir
+
+    # Image
+    img_dir = os.path.join(image_dir, base+".jpg")
+    img = cv2.imread(img_dir)
+
+    # Annotation
+    xml_dir = os.path.join(annot_dir, base+".xml")
+    root, WBC_lst = parse_XML(xml_dir)
 
     for element in root.findall('object'):
         name = element.find('name').text
@@ -70,9 +108,16 @@ def parse_XML(xml, img, label, base):
             cv2.putText(img, cls, (xmin, int((ymin+ymax)/2)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
 
-    cv2.imwrite("./%s.png" %base, img)
+    check_and_mkdir("./BCCD_Ground_Truth/")
+    #if len(WBC_lst) > 1 :
+    cv2.imwrite("./BCCD_Ground_Truth/%s.png" %base, img)
 
-def convert_lst_to_dir(lst, label_dict, mode):
+def construct_lst_to_dir(lst, label_dict, mode):
+    """
+    @ Input : train_lst, val_lst, test_lst (list of base file names with no extensions like ".jpg")
+
+    @ Function : Create
+    """
     global image_dir, annot_dir
 
     if (mode == 'test'):
@@ -81,16 +126,14 @@ def convert_lst_to_dir(lst, label_dict, mode):
         base_dir = '/home/bumsoo/Data/_train_val/BCCD/'
 
     for base in lst:
-        img_dir = os.path.join(image_dir, base+".jpg")
-        img = cv2.imread(img_dir)
-
-        ann_dir = os.path.join(annot_dir, base+".xml")
-        parse_XML(ann_dir, img, label_dict[base], base)
+        create_ground_truth(base, label_dict[base])
 
 def split_train_val(train_file, val_file, test_file, has_indent=False):
-    train_lst = read_txt(train_file, has_indent)
-    val_lst = read_txt(val_file, has_indent)
-    test_lst = read_text(test_file, has_indent)
+    train_lst = parse_text(train_file, has_indent)
+    val_lst = parse_text(val_file, has_indent)
+    test_lst = parse_text(test_file, has_indent)
+
+    return train_lst, val_lst, test_lst
 
 if __name__ == "__main__":
     label_dict = {}
@@ -112,14 +155,20 @@ if __name__ == "__main__":
     #print(label_dict)
     label_lst = set(label_lst)
 
-    train_lst = read_text(train_txt, True)
-    convert_lst_to_dir(train_lst, label_dict, mode='train')
+    #train_lst = parse_text(train_txt, True)
+    train_lst, val_lst, test_lst = split_train_val(train_txt, val_txt, test_txt, has_indent=True)
+
+    # Construct directory from each lists.
+    construct_lst_to_dir(train_lst, label_dict, mode='train')
+    construct_lst_to_dir(val_lst, label_dict, mode='val')
+    construct_lst_to_dir(test_lst, label_dict, mode='test')
+
     check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD')
     for d in ['train', 'val']:
-        check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD/%s' %d)
+        #check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD/%s' %d)
         for lbl in label_lst:
             check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD/%s/%s' %(d,lbl))
 
-    check_and_mkdir('/home/bumsoo/Data/_test/BCCD')
+    #check_and_mkdir('/home/bumsoo/Data/_test/BCCD')
     for lbl in label_lst:
         check_and_mkdir('/home/bumsoo/Data/_test/BCCD/%s' %lbl)
