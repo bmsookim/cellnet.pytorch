@@ -3,7 +3,11 @@
 # Base directory for data formats
 #name = 'Granulocytes_vs_Mononuclear'
 #name = 'BCCD'
-name = 'WBC'
+#name = 'AUG_BCCD'
+#name = 'WBC'
+#name = 'GM_BCCD'
+name = 'G_BCCD'
+#name = 'M_BCCD'
 
 H1_name = 'Granulocytes_vs_Mononuclear'
 G_name = 'Granulocytes'
@@ -59,8 +63,20 @@ elif (name == 'WBC'):
     print(name)
     print(mean)
     print(std)
-elif (name == 'BCCD'):
+elif (name == 'AUG_BCCD'):
     mean = [0.66049439066232607, 0.64131680516457479, 0.67861641316853616]
     std = [0.25870889538041947, 0.26112642565510558, 0.26200774691285844]
+elif (name == 'BCCD'):
+    mean = [0.7734852310658247, 0.6001978670527376, 0.6681920291069585]
+    std = [0.05499360963837181, 0.15174074470693394, 0.10608604828874389]
+elif (name == 'GM_BCCD'):
+    mean = [0.7734852310658247, 0.6001978670527376, 0.6681920291069585]
+    std = [0.05499360963837181, 0.15174074470693394, 0.10608604828874389]
+elif (name == 'G_BCCD'):
+    mean = [0.7718285852001573, 0.6022119763509954, 0.6749639709800079]
+    std = [0.056041130364610635, 0.14721271026408136, 0.10112752896514536]
+elif (name == 'M_BCCD'):
+    mean = [0.7808339422135298, 0.5912634847809788, 0.6381523895162508]
+    std = [0.050083456200428145, 0.17038192897611737, 0.1257458245396846]
 else:
     raise NotImplementedError

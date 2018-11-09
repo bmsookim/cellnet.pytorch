@@ -114,7 +114,58 @@ def create_ground_truth(base, label):
     #if len(WBC_lst) > 1 :
     cv2.imwrite("/home/bumsoo/Data/_test/GroundTruth/%s.png" %base, img)
 
-def construct_lst_to_dir(lst, label_dict, mode):
+def crop_ground_truth(base, label, mode):
+    """
+    @ Input : base, label_dict[base]
+
+    @ Function :
+        base -> img, xml
+        Crop the annotation patches from the image
+    """
+    global image_dir, annot_dir
+
+    # Image
+    img_dir = os.path.join(image_dir, base+".jpg")
+    img = cv2.imread(img_dir)
+
+    # Annotation
+    xml_dir = os.path.join(annot_dir, base+".xml")
+    root, WBC_lst = parse_XML(xml_dir)
+
+    # Ground Truth
+    check_and_mkdir("/home/bumsoo/Data/_test/GroundTruth/")
+
+    cnt = 0
+    for element in root.findall('object'):
+        name = element.find('name').text
+        xmin, ymin, xmax, ymax = list(map(lambda x: int(element.find('bndbox').find(x).text),
+            ['xmin', 'ymin', 'xmax', 'ymax']))
+
+        #if (name == 'RBC'):
+        #    cls = name
+        #    crop = img[ymin:ymax, xmin:xmax]
+        if (name == 'WBC'):
+            cls = label
+            if (',' in cls):
+                cls = cls.split(',')[WBC_lst.index(xmin)]
+            elif (len(WBC_lst) > 1):
+                # Case 00113, More than 1 WBC even though no WBC label
+                if (WBC_lst.index(xmin) > 0):
+                    continue
+            crop = img[ymin:ymax, xmin:xmax]
+            cnt += 1
+            #print("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%d.png" %(mode, cls, base, cnt))
+            if cls is not "":
+                if mode=='test':
+                    cv2.imwrite("/home/bumsoo/Data/_test/BCCD/%s/%s_%s_%d.png"
+                            %(cls, cls, base.split("_")[-1], cnt), crop)
+                else:
+                    print("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%s_%d.png"
+                            %(mode, cls, cls, base.split("_")[-1], cnt))
+                    cv2.imwrite("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%s_%d.png"
+                            %(mode, cls, cls, base.split("_")[-1], cnt), crop)
+
+def construct_lst_to_bbox(lst, label_dict, mode):
     """
     @ Input : train_lst, val_lst, test_lst (list of base file names with no extensions like ".jpg")
 
@@ -129,6 +180,22 @@ def construct_lst_to_dir(lst, label_dict, mode):
 
     for base in lst:
         create_ground_truth(base, label_dict[base])
+
+def construct_lst_to_patch(lst, label_dict, mode):
+    """
+    @ Input : train_lst, val_lst, test_lst (list of base file names with no extensions like ".jpg")
+
+    @ Function : Create
+    """
+    global image_dir, annot_dir
+
+    if (mode == 'test'):
+        base_dir = '/home/bumsoo/Data/_test/BCCD/'
+    else:
+        base_dir = '/home/bumsoo/Data/_train_val/BCCD/'
+
+    for base in lst:
+        crop_ground_truth(base, label_dict[base], mode)
 
 def split_train_val(train_file, val_file, test_file, has_indent=False):
     train_lst = parse_text(train_file, has_indent)
@@ -145,7 +212,10 @@ if __name__ == "__main__":
         csv_reader = csv.reader(csv_file, delimiter=',')
         next(csv_reader, None)
 
+        count = 0
         for row in csv_reader:
+            count += 1
+            #print('%s : %s' %(str(count), row[2]))
             row[2] = row[2].replace(" ", "")
             label_dict['BloodImage_%05d' %(int(row[1]))] = (row[2])
             if("," in row[2]):
@@ -161,9 +231,9 @@ if __name__ == "__main__":
     train_lst, val_lst, test_lst = split_train_val(train_txt, val_txt, test_txt, has_indent=True)
 
     # Construct directory from each lists.
-    construct_lst_to_dir(train_lst, label_dict, mode='train')
-    construct_lst_to_dir(val_lst, label_dict, mode='val')
-    construct_lst_to_dir(test_lst, label_dict, mode='test')
+    construct_lst_to_bbox(train_lst, label_dict, mode='train')
+    construct_lst_to_bbox(val_lst, label_dict, mode='val')
+    construct_lst_to_bbox(test_lst, label_dict, mode='test')
 
     check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD')
     for d in ['train', 'val']:
@@ -174,3 +244,7 @@ if __name__ == "__main__":
     #check_and_mkdir('/home/bumsoo/Data/_test/BCCD')
     for lbl in label_lst:
         check_and_mkdir('/home/bumsoo/Data/_test/BCCD/%s' %lbl)
+
+    construct_lst_to_patch(train_lst, label_dict, mode='train')
+    construct_lst_to_patch(val_lst, label_dict, mode='val')
+    construct_lst_to_patch(test_lst, label_dict, mode='test')

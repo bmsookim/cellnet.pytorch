@@ -5,10 +5,13 @@
 #name = 'Granulocytes'
 #name = 'Mononuclear'
 #name = 'Lymphocyte'
-name = 'WBC'
+#name = 'WBC'
 
 # Open dataset testout
-#name = 'BCCD'
+#name = 'AUG_BCCD'
+#name = 'GM_BCCD'
+#name = 'G_BCCD'
+name = 'M_BCCD'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name
