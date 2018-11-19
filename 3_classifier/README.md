@@ -8,6 +8,13 @@ In practice, very few people train an entire Convolutional Network from scratch 
 Futher explanations can be found [here](http://cs231n.github.io/transfer-learning/).
 
 ## Basic Setups
+Download Pretrained models for PyTorch
+```bash
+$ git clone https://github.com/Cadene/pretrained-models.pytorch.git
+$ pretrained-models.pytorch
+$ python setup.py install
+```
+
 Open [config.py](./config.py), and edit the lines below to your data directory.
 
 ```bash

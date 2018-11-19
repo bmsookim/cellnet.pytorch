@@ -24,6 +24,7 @@ import os
 import sys
 import argparse
 import csv
+import pretrainedmodels
 
 from torchvision import datasets, models, transforms
 from networks import *
@@ -107,6 +108,9 @@ def getNetwork(args):
     elif (args.net_type == 'resnet'):
         net = resnet(args.finetune, args.depth)
         file_name = 'resnet-%s' %(args.depth)
+    elif (args.net_type == 'xception'):
+        net = pretrainedmodels.xception(num_classes=1000, pretrained='imagenet')
+        file_name = 'xception'
     else:
         print('Error : Network should be either [alexnet / vggnet / resnet / densenet]')
         sys.exit(1)
@@ -173,7 +177,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
     print('\n[Phase 3] : Training Model')
     print('| Training Epochs = %d' %num_epochs)
     print('| Initial Learning Rate = %f' %args.lr)
-    print('| Optimizer = SGD')
+    opt_name = optimizer.__class__.__name__
+    if opt_name =='SGD':
+        print('| Optimizer = SGD')
+    elif opt_name =='Adam':
+        print('| Optimizer = Adam')
     #output_file = "./logs/"+args.net_type+".csv"
 
     #with open(output_file, 'wb') as csvfile:
@@ -294,6 +302,9 @@ if(args.resetClassifier):
         elif(args.net_type == 'resnet'):
             num_ftrs = model_ft.fc.in_features
             model_ft.fc = nn.Linear(num_ftrs, len(dset_classes))
+        elif(args.net_type == 'xception'):
+            num_ftrs = model_ft.last_linear.in_features
+            model_ft.last_linear = nn.Linear(num_ftrs, len(dset_classes))
 
 if use_gpu:
     model_ft = model_ft.cuda()
@@ -302,5 +313,6 @@ if use_gpu:
 
 if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
-    optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=cf.momentum, weight_decay=args.weight_decay)
+    #optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=cf.momentum, weight_decay=args.weight_decay)
+    optimizer_ft = optim.Adam(model_ft.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=cf.num_epochs)

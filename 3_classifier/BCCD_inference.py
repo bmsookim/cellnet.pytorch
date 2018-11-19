@@ -34,6 +34,7 @@ from PIL import Image
 parser = argparse.ArgumentParser(description='Pytorch Cell Classifier Training')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
+parser.add_argument('--mode', default='aug', type=str, help='[original / aug]')
 args = parser.parse_args()
 
 # Phase 1 : Data Upload
@@ -79,21 +80,28 @@ def getNetwork(args):
 def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
+if args.mode == 'original':
+    gm_name, g_name, m_name = 'GM_BCCD', 'G_BCCD', 'M_BCCD'
+elif args.mode == 'aug':
+    gm_name, g_name, m_name = 'AUG_GM', 'AUG_G', 'AUG_M'
+else:
+    print("Wrong mode type")
+    sys.exit(1)
+
 print("| Loading checkpoint model for inference phase...")
 assert os.path.isdir('checkpoint'), '[Error]: No checkpoint directory found!'
 assert os.path.isdir('checkpoint/'+cf.H1_name), '[Error]: No model has been trained on Hierarchy #1 !'
 file_name = getNetwork(args)
-checkpoint = torch.load('./checkpoint/'+cf.H1_name+'/'+file_name+'.t7')
+checkpoint = torch.load('./checkpoint/'+gm_name+'/'+file_name+'.t7')
 model = checkpoint['model']
 
-checkpoint_G = torch.load('./checkpoint/'+cf.G_name+'/'+file_name+'.t7')
+checkpoint_G = torch.load('./checkpoint/'+g_name+'/'+file_name+'.t7')
 model_G = checkpoint_G['model']
 
-checkpoint_M = torch.load('./checkpoint/'+cf.M_name+'/'+file_name+'.t7')
+checkpoint_M = torch.load('./checkpoint/'+m_name+'/'+file_name+'.t7')
 model_M = checkpoint_M['model']
 
 # Hiearchical inference
-
 if use_gpu:
     model.cuda()
     model_G.cuda()
@@ -111,8 +119,9 @@ if use_gpu:
 print("\n[Phase 3] : Score Inference")
 
 def is_image(f):
-    return f.endswith(".png") or f.endswith(".jpg")
+    return f.endswith(".png") or f.endswith(".jpg") or f.endswith(".jpeg")
 
+# Need to add case when original images meanstd appears
 # H1 Transform
 H1_transform = transforms.Compose([
     transforms.Resize(224),
@@ -172,6 +181,7 @@ with open(output_file, 'wb') as csvfile:
                 index, score = max(enumerate(softmax_res), key=operator.itemgetter(1))
 
                 inf_class = H_classes[index]
+
                 # Ground Truth
                 inp = f.split("_")[0]
 
@@ -212,8 +222,11 @@ with open(output_file, 'wb') as csvfile:
 
                     inf_class = M_classes[index]
 
+                print(inp, inf_class)
+
                 if (inf_class == inp):
                     cor += 1
                 #writer.writerow({'file_name': file_path, 'prediction': inf_class}); tot += 1
 
+print(tot)
 print(cor/tot)
