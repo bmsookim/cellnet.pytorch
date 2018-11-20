@@ -33,6 +33,7 @@ from torch.autograd import Variable
 parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Training')
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
+parser.add_argument('--optimizer', default='SGD', type=str, help='[SGD | Adam]')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='weight decay')
 parser.add_argument('--finetune', '-f', action='store_true', help='Fine tune pretrained model')
@@ -148,14 +149,15 @@ if (args.testOnly):
         num_workers=1
     )
 
-    print("\n[Phase 3 : Inference on %s]" %cf.test_dir)
+    print("\n[Phase 3] : Inference on %s" %cf.test_dir)
     for batch_idx, (inputs, targets) in enumerate(testloader):
         if use_gpu:
             inputs, targets = inputs.cuda(), targets.cuda()
-        inputs, targets = Variable(inputs, volatile=True), Variable(targets)
+        with torch.no_grad():
+            inputs, targets = Variable(inputs), Variable(targets)
         outputs = model(inputs)
 
-        print(outputs.data.cpu().numpy()[0])
+        #print(outputs.data.cpu().numpy()[0])
         softmax_res = softmax(outputs.data.cpu().numpy()[0])
 
         _, predicted = torch.max(outputs.data, 1)
@@ -313,6 +315,13 @@ if use_gpu:
 
 if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
-    #optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=cf.momentum, weight_decay=args.weight_decay)
-    optimizer_ft = optim.Adam(model_ft.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=cf.num_epochs)
+    if args.optimizer == 'SGD':
+        optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=cf.momentum, weight_decay=args.weight_decay)
+    elif args.optimizer == 'Adam':
+        optimizer_ft = optim.Adam(model_ft.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    else:
+        print("Error : Wrong optimizer arguement!")
+        sys.exit(1)
+
+    if (args.testOnly == False):
+        model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=cf.num_epochs)
