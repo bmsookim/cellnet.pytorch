@@ -1,8 +1,8 @@
 python3 main.py \
-    --lr 1e-3 \
     --optimizer SGD \
+    --lr 1e-3 \
     --weight_decay 5e-4 \
-    --net_type xception \
+    --net_type inception \
+    --depth 50 \
     --resetClassifier \
     --finetune
-    #--testOnly

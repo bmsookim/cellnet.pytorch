@@ -4,5 +4,5 @@ python3 main.py \
     --net_type resnet \
     --depth 50 \
     --resetClassifier \
-    --finetune \
-    --testOnly
+    --finetune
+    #--testOnly

@@ -42,24 +42,43 @@ parser.add_argument('--resetClassifier', '-r', action='store_true', help='Reset 
 parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
 args = parser.parse_args()
 
+#torch.cuda.set_device(1)
+
 # Phase 1 : Data Upload
 print('\n[Phase 1] : Data Preperation')
 
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.Resize(256),
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(cf.mean, cf.std)
-    ]),
-    'val': transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(cf.mean, cf.std)
-    ]),
-}
+if args.net_type == 'inception' or args.net_type == 'xception':
+    data_transforms = {
+        'train': transforms.Compose([
+            transforms.Resize(320),
+            transforms.RandomResizedCrop(240),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(cf.mean, cf.std)
+        ]),
+        'val': transforms.Compose([
+            transforms.Resize(299),
+            transforms.CenterCrop(299),
+            transforms.ToTensor(),
+            transforms.Normalize(cf.mean, cf.std)
+        ]),
+    }
+else:
+    data_transforms = {
+        'train': transforms.Compose([
+            transforms.Resize(256),
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(cf.mean, cf.std)
+        ]),
+        'val': transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(cf.mean, cf.std)
+        ]),
+    }
 
 data_dir = cf.aug_base
 dataset_dir = cf.name + os.sep #cf.data_base.split("/")[-1] + os.sep
@@ -112,6 +131,9 @@ def getNetwork(args):
     elif (args.net_type == 'xception'):
         net = pretrainedmodels.xception(num_classes=1000, pretrained='imagenet')
         file_name = 'xception'
+    elif (args.net_type == 'inception'):
+        net = pretrainedmodels.inceptionv3(num_classes=1000, pretrained='imagenet')
+        file_name = 'inception'
     else:
         print('Error : Network should be either [alexnet / vggnet / resnet / densenet]')
         sys.exit(1)
@@ -132,7 +154,7 @@ if (args.testOnly):
 
     if use_gpu:
         model.cuda()
-        model = torch.nn.DataParallel(model, device_ids=[0])#range(torch.cuda.device_count()))
+        model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
         cudnn.benchmark = True
 
     model.eval()
@@ -214,6 +236,8 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
                 # Forward Propagation
                 outputs = model(inputs)
+                if (args.net_type == 'inception'):
+                    outputs = outputs[0]
                 _, preds = torch.max(outputs.data, 1)
                 loss = criterion(outputs, labels)
 
@@ -304,13 +328,13 @@ if(args.resetClassifier):
         elif(args.net_type == 'resnet'):
             num_ftrs = model_ft.fc.in_features
             model_ft.fc = nn.Linear(num_ftrs, len(dset_classes))
-        elif(args.net_type == 'xception'):
+        elif(args.net_type == 'xception' or args.net_type == 'inception'):
             num_ftrs = model_ft.last_linear.in_features
             model_ft.last_linear = nn.Linear(num_ftrs, len(dset_classes))
 
 if use_gpu:
     model_ft = model_ft.cuda()
-    model_ft = torch.nn.DataParallel(model_ft, device_ids=[0])#range(torch.cuda.device_count()))
+    model_ft = torch.nn.DataParallel(model_ft, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
 
 if __name__ == "__main__":
