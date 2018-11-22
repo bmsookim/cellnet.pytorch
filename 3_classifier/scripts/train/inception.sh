@@ -1,7 +1,7 @@
 python3 main.py \
     --optimizer SGD \
-    --lr 1e-3 \
-    --weight_decay 5e-4 \
+    --lr 0.045 \
+    --weight_decay 4e-5 \
     --net_type inception \
     --depth 50 \
     --resetClassifier \

@@ -50,8 +50,8 @@ print('\n[Phase 1] : Data Preperation')
 if args.net_type == 'inception' or args.net_type == 'xception':
     data_transforms = {
         'train': transforms.Compose([
-            transforms.Resize(320),
-            transforms.RandomResizedCrop(240),
+            transforms.Resize(299),
+            transforms.RandomResizedCrop(299),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(cf.mean, cf.std)
@@ -236,10 +236,13 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
                 # Forward Propagation
                 outputs = model(inputs)
-                if (args.net_type == 'inception'):
+                if (isinstance(outputs, tuple)):
+                    loss = sum((criterion(o, labels) for o in outputs))
+                else:
+                    loss = criterion(outputs, labels)
+                if (isinstance(outputs, tuple)):
                     outputs = outputs[0]
                 _, preds = torch.max(outputs.data, 1)
-                loss = criterion(outputs, labels)
 
                 # Backward Propagation
                 if phase == 'train':
@@ -297,7 +300,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
     return best_model
 
 def exp_lr_scheduler(optimizer, epoch, init_lr=args.lr, weight_decay=args.weight_decay, lr_decay_epoch=cf.lr_decay_epoch):
-    lr = init_lr * (0.5**(epoch // lr_decay_epoch))
+    lr = init_lr * (0.94**(epoch // lr_decay_epoch))
 
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr

@@ -1,7 +1,7 @@
 python3 main.py \
-    --lr 1e-3 \
+    --lr 0.045 \
     --optimizer SGD \
-    --weight_decay 5e-4 \
+    --weight_decay 1e-5 \
     --net_type xception \
     --resetClassifier \
     --finetune
