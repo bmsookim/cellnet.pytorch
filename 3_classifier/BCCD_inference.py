@@ -127,24 +127,24 @@ def is_image(f):
 # Need to add case when original images meanstd appears
 # H1 Transform
 H1_transform = transforms.Compose([
+    transforms.CenterCrop(240),
     transforms.Resize(in_size),
-    transforms.CenterCrop(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_H, cf.std_H)
 ])
 
 # G Transform
 G_transform = transforms.Compose([
+    transforms.CenterCrop(240),
     transforms.Resize(in_size),
-    transforms.CenterCrop(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_G, cf.std_G)
 ])
 
 # M Transform
 M_transform = transforms.Compose([
+    transforms.CenterCrop(240),
     transforms.Resize(in_size),
-    transforms.CenterCrop(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_M, cf.std_M)
 ])
