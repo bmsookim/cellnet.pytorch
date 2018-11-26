@@ -20,6 +20,7 @@ import sys
 import argparse
 import csv
 import operator
+import progressbar
 
 from torchvision import datasets, transforms
 from torch.autograd import Variable
@@ -162,11 +163,21 @@ with open(output_file, 'wb') as csvfile:
     tot = 0
 
     for subdir, dirs, files in os.walk(data_dir):
-        print(data_dir)
+        if len(files) == 0:
+            continue
+        print(subdir)
+        class_cor = 0
+        class_tot = 0
+        widgets = ['Inference: ', progressbar.Percentage(), ' ', progressbar.Bar(marker='#', left='[', right=']'), ' ', progressbar.ETA(), ' ', progressbar.FileTransferSpeed()]
+        pbar = progressbar.ProgressBar(widgets=widgets, maxval = len(files))
+        pbar.start()
+        progress = 0
+
         for f in files:
             file_path = subdir + os.sep + f
             if (is_image(f)):
                 tot += 1
+                class_tot += 1
                 org_image = Image.open(file_path)#.convert('RGB')
                 if H1_transform is not None:
                     image = H1_transform(org_image)
@@ -225,11 +236,16 @@ with open(output_file, 'wb') as csvfile:
 
                     inf_class = M_classes[index]
 
-                print(inp, inf_class)
+                #print(inp, inf_class)
+                pbar.update(progress)
+                progress += 1
 
                 if (inf_class == inp):
                     cor += 1
+                    class_cor += 1
                 #writer.writerow({'file_name': file_path, 'prediction': inf_class}); tot += 1
+        pbar.finish()
+        print("Classwise accuracy = %f%%" %(class_cor/class_tot * 100))
 
-print(tot)
+print("Overall accuracy = %f%%" %(cor/tot * 100))
 print(cor/tot)
