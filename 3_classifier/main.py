@@ -17,18 +17,17 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import numpy as np
 import config as cf
-import torchvision
 import time
-import copy
 import os
 import sys
 import argparse
-import csv
 import pretrainedmodels
+import networks
 
 from torchvision import datasets, models, transforms
-from networks import *
 from torch.autograd import Variable
+# import csv
+# import copy
 
 parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Training')
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
@@ -50,15 +49,15 @@ print('\n[Phase 1] : Data Preperation')
 if args.net_type == 'inception' or args.net_type == 'xception':
     data_transforms = {
         'train': transforms.Compose([
+            transforms.RandomResizedCrop(240),
             transforms.Resize(299),
-            transforms.RandomResizedCrop(299),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(cf.mean, cf.std)
         ]),
         'val': transforms.Compose([
+            transforms.CenterCrop(240),
             transforms.Resize(299),
-            transforms.CenterCrop(299),
             transforms.ToTensor(),
             transforms.Normalize(cf.mean, cf.std)
         ]),
@@ -126,7 +125,7 @@ def getNetwork(args):
             net = models.densenet169(pretrained=args.finetune)
         file_name = 'densenet-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
-        net = resnet(args.finetune, args.depth)
+        net = networks.resnet(args.finetune, args.depth)
         file_name = 'resnet-%s' %(args.depth)
     elif (args.net_type == 'xception'):
         net = pretrainedmodels.xception(num_classes=1000, pretrained='imagenet')
@@ -209,11 +208,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
     #output_file = "./logs/"+args.net_type+".csv"
 
     #with open(output_file, 'wb') as csvfile:
-    fields = ['epoch', 'train_acc', 'val_acc']
+    #fields = ['epoch', 'train_acc', 'val_acc']
     #writer = csv.DictWriter(csvfile, fieldnames=fields)
     for epoch in range(num_epochs):
-        train_acc = 0
-        val_acc = 0
+        #train_acc = 0
+        #val_acc = 0
         for phase in ['train', 'val']:
 
             if phase == 'train':
@@ -262,11 +261,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                     sys.stdout.flush()
                     sys.stdout.write('\r')
 
-            epoch_loss = running_loss / dset_sizes[phase]
+            #epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc  = running_corrects.double() / dset_sizes[phase]
 
-            if (phase == 'train'):
-                train_acc = epoch_acc
+            #if (phase == 'train'):
+            #    train_acc = epoch_acc
 
             if (phase == 'val'):
                 print('\n| Validation Epoch #%d\t\t\tLoss %.4f\tAcc %.2f%%'
@@ -275,9 +274,9 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                 if epoch_acc >= best_acc :
                     print('| Saving Best model...\t\t\tTop1 %.2f%%' %(100.*epoch_acc))
                     best_acc = epoch_acc
-                    best_model = copy.deepcopy(model)
+                    #best_model = copy.deepcopy(model)
                     state = {
-                        'model': best_model,
+                        'model': model.module if use_gpu else model,
                         'acc':   epoch_acc,
                         'epoch':epoch,
                     }
@@ -288,7 +287,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                         os.mkdir(save_point)
                     torch.save(state, save_point+file_name+'.t7')
 
-                val_acc = epoch_acc
+                #val_acc = epoch_acc
 
         #writer.writerow({'epoch': epoch+1, 'train_acc': train_acc, 'val_acc': val_acc})
 

@@ -12,30 +12,29 @@
 from __future__ import print_function, division
 
 import torch
-import torch.nn as nn
-import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import numpy as np
 import BCCD_config as cf
-import torchvision
-import time
-import copy
 import os
 import sys
 import argparse
 import csv
 import operator
 
-from torchvision import datasets, models, transforms
-from networks import *
+from torchvision import datasets, transforms
 from torch.autograd import Variable
 from PIL import Image
 
 parser = argparse.ArgumentParser(description='Pytorch Cell Classifier Training')
-parser.add_argument('--net_type', default='resnet', type=str, help='model')
+parser.add_argument('--net_type', default='xception', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
 parser.add_argument('--mode', default='aug', type=str, help='[original / aug]')
 args = parser.parse_args()
+
+if args.net_type == 'xception' or args.net_type == 'inception':
+    in_size = 299
+else:
+    in_size = 224
 
 # Phase 1 : Data Upload
 print('\n[Phase 1] : Data Preperation')
@@ -71,6 +70,10 @@ def getNetwork(args):
         file_name = 'densenet-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
         file_name = 'resnet-%s' %(args.depth)
+    elif (args.net_type == 'inception'):
+        file_name = 'inception'
+    elif (args.net_type == 'xception'):
+        file_name = 'xception'
     else:
         print('[Error]: Network should be either [alexnet / vggnet / resnet]')
         sys.exit(1)
@@ -112,7 +115,7 @@ model.eval()
 model_G.eval()
 model_M.eval()
 
-sample_input = Variable(torch.randn(1,3,224,224))
+sample_input = Variable(torch.randn(1,3,in_size,in_size))
 if use_gpu:
     sample_input = sample_input.cuda()
 
@@ -124,24 +127,24 @@ def is_image(f):
 # Need to add case when original images meanstd appears
 # H1 Transform
 H1_transform = transforms.Compose([
-    transforms.Resize(224),
-    transforms.CenterCrop(224),
+    transforms.Resize(in_size),
+    transforms.CenterCrop(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_H, cf.std_H)
 ])
 
 # G Transform
 G_transform = transforms.Compose([
-    transforms.Resize(224),
-    transforms.CenterCrop(224),
+    transforms.Resize(in_size),
+    transforms.CenterCrop(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_G, cf.std_G)
 ])
 
 # M Transform
 M_transform = transforms.Compose([
-    transforms.Resize(224),
-    transforms.CenterCrop(224),
+    transforms.Resize(in_size),
+    transforms.CenterCrop(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_M, cf.std_M)
 ])

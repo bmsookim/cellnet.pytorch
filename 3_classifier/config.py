@@ -27,7 +27,7 @@ test_base = '/home/bumsoo/Data/test/WBC_TEST'
 test_dir = '/home/bumsoo/Data/_train_val/' + name + '/val/'
 
 # model option
-batch_size = 16
+batch_size = 32
 num_epochs = 70
 lr_decay_epoch=2
 momentum = 0.9

@@ -1,5 +1,5 @@
 python3 main.py \
-    --lr 0.045 \
+    --lr 0.0045 \
     --optimizer SGD \
     --weight_decay 1e-5 \
     --net_type xception \
