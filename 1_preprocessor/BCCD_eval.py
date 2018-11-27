@@ -11,6 +11,7 @@ image_dir = os.path.join(base_dir, "JPEGImages")
 annot_dir = os.path.join(base_dir, "Annotations")
 split_dir = os.path.join(base_dir, "ImageSets", "Main")
 infer_dir = "./results/faster-rcnn"
+test_dir = "/home/bumsoo/Data/_test/BCCD_FULL"
 
 test_txt = os.path.join(split_dir, "test.txt")
 
@@ -44,10 +45,12 @@ def draw_WBC_inference_and_annot(img_dir=image_dir, inf_dir=infer_dir, ann_dir=a
     """
 
     test_lst = parse_text(test_txt, has_indent=True)
+    check_and_mkdir(test_dir)
 
     for item in test_lst:
         print(os.path.join(img_dir, item+'.jpg'))
         img = cv2.imread(os.path.join(img_dir, item+".jpg"))
+        cv2.imwrite(os.path.join(test_dir, item+'.png'), img)
         xml_dir = os.path.join(annot_dir, item+".xml")
         root, WBC_lst = parse_XML(xml_dir)
 
