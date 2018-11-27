@@ -23,11 +23,11 @@ import sys
 import argparse
 import pretrainedmodels
 import networks
+import copy
 
 from torchvision import datasets, models, transforms
 from torch.autograd import Variable
 # import csv
-# import copy
 
 parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Training')
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
@@ -131,7 +131,7 @@ def getNetwork(args):
         net = pretrainedmodels.xception(num_classes=1000, pretrained='imagenet')
         file_name = 'xception'
     elif (args.net_type == 'inception'):
-        net = pretrainedmodels.inceptionv3(num_classes=1000, pretrained='imagenet')
+        net = models.inception_v3(num_classes=1000, pretrained=args.finetune)
         file_name = 'inception'
     else:
         print('Error : Network should be either [alexnet / vggnet / resnet / densenet]')
@@ -234,7 +234,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                 optimizer.zero_grad()
 
                 # Forward Propagation
-                outputs = model(inputs)
+                try:
+                    outputs = model(inputs)
+                except ValueError:
+                    outputs = model(torch.cat((inputs, inputs), dim=0))
+                    labels = torch.cat((labels, labels), dim=0)
                 if (isinstance(outputs, tuple)):
                     loss = sum((criterion(o, labels) for o in outputs))
                 else:
@@ -274,9 +278,9 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                 if epoch_acc >= best_acc :
                     print('| Saving Best model...\t\t\tTop1 %.2f%%' %(100.*epoch_acc))
                     best_acc = epoch_acc
-                    #best_model = copy.deepcopy(model)
+                    best_model = copy.deepcopy(model)
                     state = {
-                        'model': model.module if use_gpu else model,
+                        'model': best_model,
                         'acc':   epoch_acc,
                         'epoch':epoch,
                     }
@@ -327,10 +331,10 @@ if(args.resetClassifier):
             feature_model.pop()
             feature_model.append(nn.Linear(num_ftrs, len(dset_classes)))
             model_ft.classifier = nn.Sequential(*feature_model)
-        elif(args.net_type == 'resnet'):
+        elif(args.net_type == 'resnet' or args.net_type == 'inception'):
             num_ftrs = model_ft.fc.in_features
             model_ft.fc = nn.Linear(num_ftrs, len(dset_classes))
-        elif(args.net_type == 'xception' or args.net_type == 'inception'):
+        elif(args.net_type == 'xception'):
             num_ftrs = model_ft.last_linear.in_features
             model_ft.last_linear = nn.Linear(num_ftrs, len(dset_classes))
 
