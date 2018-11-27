@@ -2,7 +2,7 @@
 
 # Base directory for data formats
 #name = 'Granulocytes_vs_Mononuclear'
-#name = 'BCCD'
+name = 'BCCD'
 #name = 'AUG_BCCD'
 #name = 'WBC'
 #name = 'GM_BCCD'
@@ -10,7 +10,7 @@
 #name = 'M_BCCD'
 #name = 'AUG_GM'
 #name = 'AUG_G'
-name = 'AUG_M'
+#name = 'AUG_M'
 
 H1_name = 'Granulocytes_vs_Mononuclear'
 G_name = 'Granulocytes'

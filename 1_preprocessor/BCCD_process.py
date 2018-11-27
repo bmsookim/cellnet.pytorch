@@ -141,10 +141,10 @@ def crop_ground_truth(base, label, mode):
         xmin, ymin, xmax, ymax = list(map(lambda x: int(element.find('bndbox').find(x).text),
             ['xmin', 'ymin', 'xmax', 'ymax']))
 
-        #if (name == 'RBC'):
-        #    cls = name
-        #    crop = img[ymin:ymax, xmin:xmax]
-        if (name == 'WBC'):
+        if (name == 'RBC'):
+            cls = name
+            crop = img[ymin:ymax, xmin:xmax]
+        elif (name == 'WBC'):
             cls = label
             if (',' in cls):
                 cls = cls.split(',')[WBC_lst.index(xmin)]
@@ -152,18 +152,20 @@ def crop_ground_truth(base, label, mode):
                 # Case 00113, More than 1 WBC even though no WBC label
                 if (WBC_lst.index(xmin) > 0):
                     continue
-            crop = img[ymin:ymax, xmin:xmax]
-            cnt += 1
-            #print("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%d.png" %(mode, cls, base, cnt))
-            if cls is not "":
-                if mode=='test':
-                    cv2.imwrite("/home/bumsoo/Data/_test/BCCD/%s/%s_%s_%d.png"
-                            %(cls, cls, base.split("_")[-1], cnt), crop)
-                else:
-                    print("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%s_%d.png"
-                            %(mode, cls, cls, base.split("_")[-1], cnt))
-                    cv2.imwrite("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%s_%d.png"
-                            %(mode, cls, cls, base.split("_")[-1], cnt), crop)
+        else:
+            continue
+        crop = img[ymin:ymax, xmin:xmax]
+        cnt += 1
+        #print("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%d.png" %(mode, cls, base, cnt))
+        if cls is not "":
+            if mode=='test':
+                cv2.imwrite("/home/bumsoo/Data/_test/BCCD/%s/%s_%s_%d.png"
+                        %(cls, cls, base.split("_")[-1], cnt), crop)
+            else:
+                print("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%s_%d.png"
+                        %(mode, cls, cls, base.split("_")[-1], cnt))
+                cv2.imwrite("/home/bumsoo/Data/_train_val/BCCD/%s/%s/%s_%s_%d.png"
+                        %(mode, cls, cls, base.split("_")[-1], cnt), crop)
 
 def construct_lst_to_bbox(lst, label_dict, mode):
     """
@@ -241,9 +243,12 @@ if __name__ == "__main__":
         for lbl in label_lst:
             check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD/%s/%s' %(d,lbl))
 
+        check_and_mkdir('/home/bumsoo/Data/_train_val/BCCD/%s/RBC' %d)
+
     #check_and_mkdir('/home/bumsoo/Data/_test/BCCD')
     for lbl in label_lst:
         check_and_mkdir('/home/bumsoo/Data/_test/BCCD/%s' %lbl)
+    check_and_mkdir('/home/bumsoo/Data/_test/BCCD/RBC')
 
     construct_lst_to_patch(train_lst, label_dict, mode='train')
     construct_lst_to_patch(val_lst, label_dict, mode='val')

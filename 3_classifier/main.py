@@ -65,15 +65,15 @@ if args.net_type == 'inception' or args.net_type == 'xception':
 else:
     data_transforms = {
         'train': transforms.Compose([
-            transforms.Resize(256),
-            transforms.RandomResizedCrop(224),
+            transforms.RandomResizedCrop(240),
+            transforms.Resize(224),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(cf.mean, cf.std)
         ]),
         'val': transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
+            transforms.CenterCrop(240),
+            transforms.Resize(224),
             transforms.ToTensor(),
             transforms.Normalize(cf.mean, cf.std)
         ]),

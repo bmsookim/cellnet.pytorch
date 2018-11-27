@@ -43,6 +43,12 @@ if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
 
+try:
+    # Python 2
+    xrange
+except NameError:
+    xrange = range
+
 parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
@@ -139,11 +145,7 @@ def check_and_mkdir(in_dir):
         os.makedirs(in_dir)
 
 if __name__ == "__main__":
-    try:
-        # Python 2
-        xrange
-    except NameError:
-        xrange = range
+
 
     # uploading the model
     print("| Loading checkpoint model for grad-CAM...")
