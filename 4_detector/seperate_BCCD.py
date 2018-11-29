@@ -40,7 +40,6 @@ parser.add_argument('--stepSize', default=80, type=int, help='size of each slidi
 parser.add_argument('--windowSize', default=120, type=int, help='size of the sliding window')
 parser.add_argument('--subtype', default=None, type=str, help='Type to find')
 parser.add_argument('--testNumber', default=1, type=int, help='Test Number')
-parser.add_argument('--preprocess', default='pad', type=str, help='[None / pad]')
 args = parser.parse_args()
 
 in_size = 224 if args.net_type == 'resnet' else 299
@@ -116,61 +115,58 @@ if __name__ == "__main__":
             print("| Opening "+file_name+"...")
 
             image = Image.open(file_name)
+            img_lst = [image.crop((0,0,480,480)), image.crop((160,0,640,480))]
 
-            # pad image
-            if args.preprocess == 'pad':
-                new_im = Image.new('RGB', (640, 640))
-                new_im.paste(image, ((640-640)//2, (640-480)//2))
-                image = new_im
+            background_img = cv2.imread(file_name)
+            blank_mask = np.zeros((background_img.shape[0], background_img.shape[1]))
+            blank_heatmap = np.zeros((background_img.shape[0], background_img.shape[1]))
 
-            if test_transform is not None:
-                image = test_transform(image)
-            inputs = image
+            mode = 0
+            for img in img_lst:
+                if test_transform is not None:
+                    image = test_transform(img)
+                inputs = image
 
-            with torch.no_grad():
-                inputs = Variable(inputs)
+                with torch.no_grad():
+                    inputs = Variable(inputs)
 
-            if use_gpu:
-                inputs = inputs.cuda()
+                if use_gpu:
+                    inputs = inputs.cuda()
 
-            inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
+                inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
 
-            probs, idx = gcam.forward(inputs)
+                probs, idx = gcam.forward(inputs)
 
-            if (args.subtype == None):
-                comp_idx = idx[0]
-                item_id = 0
-            else:
-                comp_idx = WBC_id
-                item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
+                if (args.subtype == None):
+                    comp_idx = idx[0]
+                    item_id = 0
+                else:
+                    comp_idx = WBC_id
+                    item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
 
-            gcam.backward(idx=comp_idx)
-            output = gcam.generate(target_layer = 'layer4.2') # for resnet
+                gcam.backward(idx=comp_idx)
+                output = gcam.generate(target_layer = 'layer4.2') # for resnet
 
-            heatmap = output
-            #original = inputs.data.cpu().numpy()
+                heatmap = output
+                original = inputs.data.cpu().numpy()
 
-            #original = np.transpose(original, (0,2,3,1))[0]
-            #original = original * cf.std + cf.mean
-            #original = np.uint8(original * 255.0)
+                original = np.transpose(original, (0,2,3,1))[0]
+                original = original * cf.std + cf.mean
+                original = np.uint8(original * 255.0)
 
-            original = cv2.imread(file_name)
+                mask = np.uint8(heatmap * 255.0)
 
-            if (args.preprocess == 'pad'):
-                heatmap = cv2.resize(heatmap, (640, 640))
-                heatmap = heatmap[80:560, :]
-            else:
-                original = cv2.resize(original, (224, 224))
-            #heatmap[heatmap < 0.7] = 0
-            #heatmap = cv2.GaussianBlur(heatmap, (15, 15), 0)
+                blank_heatmap[:, (mode*160):480+(mode*160)] = cv2.resize(heatmap, (480, 480))
+                mode += 1
 
-            mask = np.uint8(heatmap * 255.0)
-
+            blank_heatmap[blank_heatmap > 1] = 1
+            blank_heatmap = cv2.GaussianBlur(blank_heatmap, (15, 15), 0)
+            blank_mask = np.uint8(blank_heatmap * 255.0)
             check_and_mkdir("./results/BCCD/heatmaps")
             check_and_mkdir("./results/BCCD/masks")
 
             save_dir = "./results/BCCD/heatmaps/" + f
             mask_dir = "./results/BCCD/masks/" + f
 
-            gcam.save(save_dir, heatmap, original)
-            cv2.imwrite(mask_dir, mask)
+            gcam.save(save_dir, blank_heatmap, background_img)
+            cv2.imwrite(mask_dir, blank_mask)

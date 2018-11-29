@@ -1,8 +1,9 @@
 #################### Configuration File ####################
 
 # Base directory for data formats
-name = 'GM_BCCD'
+#name = 'GM_BCCD'
 #name = 'AUG_BCCD'
+name = 'AUG_GM'
 
 data_dir = '/home/mnt/datasets/'
 aug_dir = '/home/bumsoo/Data/_train_val/'
@@ -28,7 +29,7 @@ else:
     mean = [0.66049439066232607, 0.64131680516457479, 0.67861641316853616]
     std = [0.25870889538041947, 0.26112642565510558, 0.26200774691285844]
 
-if (name == 'AUG_BCCD'):
+if (name == 'AUG_BCCD' or name == 'AUG_GM'):
     mean = [0.66049439066232607, 0.64131680516457479, 0.67861641316853616]
     std = [0.25870889538041947, 0.26112642565510558, 0.26200774691285844]
 elif (name == 'BCCD'):

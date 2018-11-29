@@ -196,11 +196,15 @@ if __name__ == "__main__":
     else:
         print("| Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
-    file_name = cf.test_dir + os.sep + ('/Guro/TEST%s/TEST%s.png' %(str(args.testNumber), str(args.testNumber)))
-    print("| Opening "+file_name+"...")
-
-    original_image = cv2.imread(file_name)
-    PIL_image = Image.open(file_name)
+    try:
+        file_name = cf.test_dir + os.sep + ('ALL_IDB1/im/Im%03d_1.jpg' %(args.testNumber))
+        original_image = cv2.imread(file_name)
+        PIL_image = Image.open(file_name)
+    except FileNotFoundError:
+        file_name = cf.test_dir + os.sep + ('ALL_IDB1/im/Im%03d_0.jpg' %(args.testNumber))
+        original_image = cv2.imread(file_name)
+        PIL_image = Image.open(file_name)
+    print("Reading %s..." %file_name)
 
     lst = generate_sliding_windows(PIL_image, args.stepSize, args.windowSize)
 
@@ -296,19 +300,19 @@ if __name__ == "__main__":
                 img_cnt += 1
 
                 if (img_cnt >= len(heatmap_lst)):
-                    check_and_mkdir('./results/%s' %cf.name)
-                    check_and_mkdir('./results/%s/heatmaps/' %cf.name)
-                    check_and_mkdir('./results/%s/masks/' %cf.name)
+                    check_and_mkdir('./results/ALL_IDB1/%s' %cf.name)
+                    check_and_mkdir('./results/ALL_IDB1/%s/heatmaps/' %cf.name)
+                    check_and_mkdir('./results/ALL_IDB1/%s/masks/' %cf.name)
                     blank_canvas[blank_canvas > 1] = 1
-                    blank_canvas = cv2.GaussianBlur(blank_canvas, (15,15), 0)
+                    blank_canvas = cv2.GaussianBlur(blank_canvas, (41,41), 0)
                     blank_save = np.uint8(blank_canvas * 255.0)
 
                     if args.subtype == None:
-                        save_dir = './results/%s/heatmaps/%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1])
-                        save_mask = './results/%s/masks/%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1])
+                        save_dir = './results/ALL_IDB1/%s/heatmaps/%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1])
+                        save_mask = './results/ALL_IDB1/%s/masks/%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1])
                     else:
-                        save_dir = './results/%s/heatmaps/%s_%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1], args.subtype)
-                        save_mask = './results/%s/masks/%s_%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1], args.subtype)
+                        save_dir = './results/ALL_IDB1/%s/heatmaps/%s_%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1], args.subtype)
+                        save_mask = './results/ALL_IDB1/%s/masks/%s_%s.png' %(cf.name, file_name.split(".")[-2].split("/")[-1], args.subtype)
 
                     # Save the grad-cam results
                     print("| Saving Heatmap results... ")
