@@ -49,14 +49,15 @@ try:
 except NameError:
     xrange = range
 
-parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
-parser.add_argument('--net_type', default='resnet', type=str, help='model')
-parser.add_argument('--depth', default=50, type=int, help='depth of model')
-parser.add_argument('--stepSize', default=50, type=int, help='size of each sliding window steps')
-parser.add_argument('--windowSize', default=100, type=int, help='size of the sliding window')
-parser.add_argument('--subtype', default=None, type=str, help='Type to find')
-parser.add_argument('--testNumber', default=1, type=int, help='Test Number')
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
+    parser.add_argument('--net_type', default='resnet', type=str, help='model')
+    parser.add_argument('--depth', default=50, type=int, help='depth of model')
+    parser.add_argument('--stepSize', default=50, type=int, help='size of each sliding window steps')
+    parser.add_argument('--windowSize', default=100, type=int, help='size of the sliding window')
+    parser.add_argument('--subtype', default=None, type=str, help='Type to find')
+    parser.add_argument('--testNumber', default=1, type=int, help='Test Number')
+    args = parser.parse_args()
 
 # Phase 1 : Model Upload
 print('\n[Phase 1] : Model Weight Upload')
@@ -78,6 +79,8 @@ def getNetwork(args):
         file_name = 'alexnet'
     elif (args.net_type == 'vggnet'):
         file_name = 'vgg-%s' %(args.depth)
+    elif (args.net_type == 'inception'):
+        file_name = 'inception'
     elif (args.net_type == 'resnet'):
         file_name = 'resnet-%s' %(args.depth)
     elif (args.net_type == 'densenet'):
@@ -126,7 +129,7 @@ def generate_sliding_windows(image, stepSize, windowSize):
 
     return list_windows
 
-def generate_padding_image(image, mode='cv2'):
+def generate_padding_image(args, image, mode='cv2'):
     if (mode == 'cv2'):
         border_x = int((args.stepSize - ((image.shape[0]-args.windowSize)%args.stepSize)))
         border_y = int((args.stepSize - ((image.shape[1]-args.windowSize)%args.stepSize)))

@@ -31,6 +31,8 @@ from torch.autograd import Variable
 
 parser = argparse.ArgumentParser(description='PyTorch Digital Mammography Training')
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
+parser.add_argument('--lr_decay', default=0.5, type=float, help='learning rate decay ratio')
+parser.add_argument('--lr_decay_epoch', default=35, type=float, help='learning rate')
 parser.add_argument('--net_type', default='resnet', type=str, help='model')
 parser.add_argument('--optimizer', default='SGD', type=str, help='[SGD | Adam]')
 parser.add_argument('--depth', default=50, type=int, help='depth of model')
@@ -302,8 +304,8 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
     return best_model
 
-def exp_lr_scheduler(optimizer, epoch, init_lr=args.lr, weight_decay=args.weight_decay, lr_decay_epoch=cf.lr_decay_epoch):
-    lr = init_lr * (0.94**(epoch // lr_decay_epoch))
+def exp_lr_scheduler(optimizer, epoch, init_lr=args.lr, weight_decay=args.weight_decay, lr_decay_epoch=args.lr_decay_epoch):
+    lr = init_lr * (args.lr_decay**(epoch // lr_decay_epoch))
 
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr

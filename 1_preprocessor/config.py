@@ -13,9 +13,9 @@
 #name = 'GM_BCCD'
 #name = 'G_BCCD'
 #name = 'M_BCCD'
-#name = 'AUG_GM'
+name = 'AUG_GM'
 #name = 'AUG_G'
-name = 'AUG_M'
+#name = 'AUG_M'
 
 # Base directory for data formats
 data_base = '/mnt/datasets/' + name

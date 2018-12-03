@@ -86,13 +86,13 @@ for f in file_list:
                 del_list.append(i) # delete original area
                 del_list.append(j) # delete original area
 
-                print('distance %d - %d : %d'%(i,j,distance))
-                print('union area %d - %d : %d'%(i,j,union_area))
+                #print('distance %d - %d : %d'%(i,j,distance))
+                #print('union area %d - %d : %d'%(i,j,union_area))
 
     final_img = img.copy()
 
-    check_and_mkdir('./results/%s' %str(threshold_value))
-    csvfile = open(os.path.join('./results/',str(threshold_value), os.path.splitext(f)[0]+'.csv'), 'w', encoding='utf-8', newline='')
+    check_and_mkdir('./results/Guro/%s' %str(threshold_value))
+    csvfile = open(os.path.join('./results', 'Guro', str(threshold_value), os.path.splitext(f)[0]+'.csv'), 'w', encoding='utf-8', newline='')
     wr = csv.writer(csvfile)
 
     # save initial area into csv file (merged area is already deleted from the list)
@@ -153,8 +153,7 @@ for f in file_list:
     # close csv file
     csvfile.close()
 
-    cv2.imwrite(os.path.join('./results/',str(threshold_value), os.path.splitext(f)[0]+"_"+'final_img.png'), final_img)
-    print(str(threshold_value)+os.path.splitext(f)[0]+"_"+'final_img.png')
+    cv2.imwrite(os.path.join('./results/', 'Guro', str(threshold_value), os.path.splitext(f)[0]+".png"), final_img)
 
     dual_img = img.copy()
 
@@ -172,5 +171,5 @@ for f in file_list:
 
         cv2.rectangle(dual_img, (int(center_x-w/2),int(center_y-h/2)), (int(center_x+w/2),int(center_y+h/2)), (0,0,255), 2)
 
-    cv2.imwrite(os.path.join('./results/',str(threshold_value), os.path.splitext(f)[0]+"_"+'dual_img.png'), dual_img)
-    print(str(threshold_value)+os.path.splitext(f)[0]+"_"+'dual_img.png')
+    #cv2.imwrite(os.path.join('./results/',str(threshold_value), os.path.splitext(f)[0]+"_"+'dual_img.png'), dual_img)
+    #print(str(threshold_value)+os.path.splitext(f)[0]+"_"+'dual_img.png')

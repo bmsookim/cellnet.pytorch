@@ -33,15 +33,16 @@ if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
 
-parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
-parser.add_argument('--net_type', default='resnet', type=str, help='model')
-parser.add_argument('--depth', default=50, type=int, help='depth of model')
-parser.add_argument('--stepSize', default=80, type=int, help='size of each sliding window steps')
-parser.add_argument('--windowSize', default=120, type=int, help='size of the sliding window')
-parser.add_argument('--subtype', default=None, type=str, help='Type to find')
-parser.add_argument('--testNumber', default=1, type=int, help='Test Number')
-parser.add_argument('--preprocess', default='pad', type=str, help='[None / pad]')
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Pytorch Cell Classification weight upload')
+    parser.add_argument('--preprocess', default='pad', type=str, help='[none / pad]')
+    parser.add_argument('--net_type', default='resnet', type=str, help='model')
+    parser.add_argument('--depth', default=50, type=int, help='depth of model')
+    parser.add_argument('--stepSize', default=80, type=int, help='size of each sliding window steps')
+    parser.add_argument('--windowSize', default=120, type=int, help='size of the sliding window')
+    parser.add_argument('--subtype', default=None, type=str, help='Type to find')
+    parser.add_argument('--testNumber', default=1, type=int, help='Test Number')
+    args = parser.parse_args()
 
 in_size = 224 if args.net_type == 'resnet' else 299
 
@@ -160,7 +161,7 @@ if __name__ == "__main__":
                 heatmap = cv2.resize(heatmap, (640, 640))
                 heatmap = heatmap[80:560, :]
             else:
-                original = cv2.resize(original, (224, 224))
+                original = cv2.resize(original, (in_size, in_size))
             #heatmap[heatmap < 0.7] = 0
             #heatmap = cv2.GaussianBlur(heatmap, (15, 15), 0)
 
