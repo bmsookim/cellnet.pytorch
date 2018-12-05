@@ -137,11 +137,15 @@ if use_gpu:
     model.cuda()
     model_G.cuda()
     model_M.cuda()
+    model_N.cuda()
+    model_L.cuda()
     cudnn.benchmark = True
 
 model.eval()
 model_G.eval()
 model_M.eval()
+model_N.eval()
+model_L.eval()
 
 sample_input = Variable(torch.randn(1,3,224,224))
 if use_gpu:
@@ -154,40 +158,40 @@ def is_image(f):
 
 # H1 Transform
 H1_transform = transforms.Compose([
-    transforms.Scale(224),
-    transforms.CenterCrop(224),
+    transforms.CenterCrop(240),
+    transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_H, cf.std_H)
 ])
 
 # G Transform
 G_transform = transforms.Compose([
-    transforms.Scale(224),
-    transforms.CenterCrop(224),
+    transforms.CenterCrop(240),
+    transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_G, cf.std_G)
 ])
 
 # M Transform
 M_transform = transforms.Compose([
-    transforms.Scale(224),
-    transforms.CenterCrop(224),
+    transforms.CenterCrop(240),
+    transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_M, cf.std_M)
 ])
 
 # N Transform
 N_transform = transforms.Compose([
-    transforms.Scale(224),
-    transforms.CenterCrop(224),
+    transforms.CenterCrop(240),
+    transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_N, cf.std_N)
 ])
 
 # L Transform
 L_transform = transforms.Compose([
-    transforms.Scale(224),
-    transforms.CenterCrop(224),
+    transforms.CenterCrop(240),
+    transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_L, cf.std_L)
 ])
@@ -198,13 +202,20 @@ if not os.path.isdir('result'):
 output_file = "./result/"+cf.test_base.split("/")[-1]+"_inference.csv"
 
 errors = 0
-with open(output_file, 'wb') as csvfile:
+cor = 0
+tot = 0
+
+cnt_N = 0
+cnt_N_errors = 0
+
+cnt_L = 0
+cnt_L_errors = 0
+
+with open(output_file, 'w') as csvfile:
     fields = ['file_name', 'prediction']
     writer = csv.DictWriter(csvfile, fieldnames=fields)
 
-    for subdir, dirs, files in os.walk(data_dir):
-        cor = 0 # number of correct answers
-        tot = 0
+    for subdir, dirs, files in os.walk(cf.inf_dir):
         for f in files:
             file_path = subdir + os.sep + f
             if (is_image(f)):
@@ -253,6 +264,7 @@ with open(output_file, 'wb') as csvfile:
                     inf_class = G_classes[index]
 
                     if inf_class == 'WBC_Neutrophil':
+                        cnt_N += 1
                         if N_transform is not None:
                             image = N_transform(org_image)
                         else:
@@ -263,7 +275,6 @@ with open(output_file, 'wb') as csvfile:
 
                         if use_gpu:
                             inputs = inputs.cuda()
-
                         inputs = inputs.view(1, inputs.size(0), inputs.size(1), inputs.size(2))
 
                         outputs = model_N(inputs)
@@ -292,6 +303,8 @@ with open(output_file, 'wb') as csvfile:
                     inf_class = M_classes[index]
 
                     if inf_class == 'WBC_Lymphocyte':
+                        print("L!")
+                        cnt_L += 1
                         if L_transform is not None:
                             image = L_transform(org_image)
                         else:
@@ -315,6 +328,18 @@ with open(output_file, 'wb') as csvfile:
                     errors += 1
                     print(file_path + ", " + str(inf_class) + " : " + str(score))
 
-                writer.writerow({'file_name': file_path, 'prediction': H_classes[index]}); tot += 1
+                    if 'Neutrophil' in inf_class:
+                        cnt_N_errors += 1
+                    elif 'Lymphocyte' in inf_class:
+                        cnt_L_errors += 1
+
+                writer.writerow({'file_name': file_path, 'prediction': inf_class}); tot += 1
 
 print(float(tot-errors)/tot)
+print(float(cnt_N-cnt_N_errors)/cnt_N)
+print(float(cnt_L-cnt_L_errors)/cnt_L)
+errors = errors - cnt_N_errors - cnt_L_errors
+tot = tot - cnt_N - cnt_L
+
+print(float(tot-errors)/tot)
+
