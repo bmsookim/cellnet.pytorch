@@ -246,7 +246,7 @@ if __name__ == "__main__":
                 comp_idx = WBC_id
                 item_id = (np.where(idx.cpu().numpy() == (WBC_id)))[0][0]
 
-            if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.7):
+            if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
                 heatmap_lst.append(np.uint8(np.zeros((224, 224))))
             #elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
             #    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
@@ -304,7 +304,7 @@ if __name__ == "__main__":
                     check_and_mkdir('./results/ALL_IDB1/%s/heatmaps/' %cf.name)
                     check_and_mkdir('./results/ALL_IDB1/%s/masks/' %cf.name)
                     blank_canvas[blank_canvas > 1] = 1
-                    #blank_canvas = cv2.GaussianBlur(blank_canvas, (41,41), 0)
+                    blank_canvas = cv2.GaussianBlur(blank_canvas, (41,41), 0)
                     #blank_canvas = softmax(blank_canvas)
                     #blank_canvas = (blank_canvas - blank_canvas.min())/(blank_canvas.max()-blank_canvas.min())
                     #blank_canvas /= blank_canvas.max()
