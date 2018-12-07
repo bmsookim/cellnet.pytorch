@@ -12,6 +12,8 @@ aug_dir = '/home/bumsoo/Data/_train_val/'
 data_base = data_dir + name
 aug_base = '/home/bumsoo/Data/_train_val/' + name
 test_base = '/home/bumsoo/Data/_test/BCCD_FULL/'
+test_dir = '/home/bumsoo/Data/_test/' # Number on the back
+
 
 # model option
 batch_size = 16
