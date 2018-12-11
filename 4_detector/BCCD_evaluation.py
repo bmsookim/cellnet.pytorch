@@ -143,7 +143,6 @@ def frcnn_eval(file_path):
                 max_iou = 0
             else:
                 iou_lst = list(map(lambda x : bb_intersection_over_union(x, gt), pred_lst))
-                print(iou_lst)
                 max_iou = max(iou_lst)
                 del_idx = np.argmax(iou_lst)
                 #del pred_lst[del_idx]
@@ -151,6 +150,10 @@ def frcnn_eval(file_path):
             frcnn_IoU.append(max_iou)
             cv2.putText(original_img, str(max_iou), (int((gt[0]+gt[2])/2), int((gt[1]+gt[3])/2)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
+
+        if len(pred_lst) > len(ground_truth_lst):
+            for i in range(len(pred_lst)-len(ground_truth_lst)):
+                frcnn_IoU.append(0)
 
     return original_img
 
@@ -178,9 +181,9 @@ def gcam_eval(file_path):
             ground_truth_lst.append([xmin, ymin, xmax, ymax])
 
     # Prediction
-    ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 127, 255, cv2.THRESH_BINARY)
+    ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 150, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3,3), np.uint8)
-    closing = cv2.morphologyEx(threshed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
+    closing = cv2.morphologyEx(threshed_img, cv2.MORPH_CLOSE, kernel, iterations=2)
 
     _, contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -198,14 +201,17 @@ def gcam_eval(file_path):
                 max_iou = 0
             else:
                 iou_lst = list(map(lambda x : bb_intersection_over_union(x, gt), pred_lst))
-                print(iou_lst)
                 max_iou = max(iou_lst)
-                del_idx = np.argmax(iou_lst)
-                del pred_lst[del_idx]
+                #del_idx = np.argmax(iou_lst)
+                #del pred_lst[del_idx]
 
             gcam_IoU.append(max_iou)
             cv2.putText(original_img, str(max_iou), (int((gt[0]+gt[2])/2), int((gt[1]+gt[3])/2)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
+
+        if len(pred_lst) > len(ground_truth_lst):
+            for i in range(len(pred_lst)-len(ground_truth_lst)):
+                gcam_IoU.append(0)
 
     return original_img
 
