@@ -8,7 +8,7 @@ from xml.etree.ElementTree import parse
 from BCCD_frcnn_process import base_dir, image_dir, annot_dir, split_dir, train_txt, val_txt, test_txt
 from BCCD_frcnn_process import check_and_mkdir, parse_text, parse_XML, split_train_val, create_csv_to_txt
 
-patch_num_lst = [3, 4]
+patch_num_lst = [3, 4, 5]
 
 def lst_to_img(patch_num, patch_lst, path_img_lst, w, h, f_base, csvfile):
     blank_canvas = np.zeros((w*patch_num, h*patch_num, 3))
