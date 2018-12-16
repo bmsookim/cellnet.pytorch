@@ -83,7 +83,7 @@ def inference_crop(model, cropped_img):
 
     return index, score
 
-def bbox(original_img, mask_img, model):
+def bbox(base, original_img, mask_img, model):
     ret, threshed_img = cv2.threshold(cv2.cvtColor(mask_img, cv2.COLOR_BGR2GRAY), 127, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3,3), np.uint8)
     closing = cv2.morphologyEx(threshed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
@@ -92,17 +92,17 @@ def bbox(original_img, mask_img, model):
 
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if (area > 4000):
-            x, y, w, h = cv2.boundingRect(cnt)
-            crop = original_img[y:y+h, x:x+w]
-            crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+        x, y, w, h = cv2.boundingRect(cnt)
+        crop = original_img[y:y+h, x:x+w]
+        crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
 
-            idx, score = inference_crop(model, crop)
-            answ = dset_classes[idx]
+        idx, score = inference_crop(model, crop)
+        answ = dset_classes[idx]
 
-            cv2.rectangle(original_img, (x,y), (x+w, y+h), (0,255,0), 2)
-            cv2.putText(original_img, "%s = %s" %(answ, str(score)), (x,y),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
+        cv2.rectangle(original_img, (x,y), (x+w, y+h), (0,255,0), 2)
+        cv2.putText(original_img, "%s = %s" %(answ, str(score)), (x,y),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
+        cv2.imwrite("./results/ALL_IDB1/Granulocytes_vs_Mononuclear/cropped/%s-%d.png", crop)
 
     return original_img
 
@@ -122,6 +122,7 @@ if __name__ == "__main__":
     model = checkpoint['model']
 
     check_and_mkdir('./results/ALL_IDB1/Granulocytes_vs_Mononuclear/inferenced/')
+    check_and_mkdir('./results/ALL_IDB1/Granulocytes_vs_Mononuclear/cropped/')
 
     # Iterate files
     for subdir, dirs, files in os.walk('/home/bumsoo/Data/_test/ALL_IDB1/im/'):
@@ -138,6 +139,6 @@ if __name__ == "__main__":
             mask_img = cv2.imread(in_dir + 'masks/' + f.split(".")[0] + ".png")
 
             back_img = img
-            marked_img = bbox(back_img, mask_img, model)
+            marked_img = bbox(f.split(".")[0], back_img, mask_img, model)
             print("Bounding Box Inference for %s" %f)
             cv2.imwrite(in_dir + "/inferenced/" + f, marked_img)
