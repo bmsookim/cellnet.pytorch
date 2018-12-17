@@ -103,8 +103,12 @@ def getNetwork(args):
         file_name = 'densenet-%s' %(args.depth)
     elif (args.net_type == 'resnet'):
         file_name = 'resnet-%s' %(args.depth)
+    elif (args.net_type == 'inception'):
+        file_name = 'inception'
+    elif (args.net_type == 'xception'):
+        file_name = 'xception'
     else:
-        print('[Error]: Network should be either [alexnet / vggnet / resnet]')
+        print('[Error]: Network should be either [alexnet / vggnet / resnet / inception]')
         sys.exit(1)
 
     return file_name
@@ -126,10 +130,10 @@ checkpoint_M = torch.load('./checkpoint/'+cf.M_name+'/'+file_name+'.t7')
 model_M = checkpoint_M['model']
 
 checkpoint_N = torch.load('./checkpoint/'+cf.N_name+'/'+file_name+'.t7')
-model_N = checkpoint_M['model']
+model_N = checkpoint_N['model']
 
 checkpoint_L = torch.load('./checkpoint/'+cf.L_name+'/'+file_name+'.t7')
-model_L = checkpoint_M['model']
+model_L = checkpoint_L['model']
 
 # Hiearchical inference
 
@@ -156,42 +160,45 @@ print("\n[Phase 3] : Score Inference")
 def is_image(f):
     return f.endswith(".png") or f.endswith(".jpg")
 
+crop_size = 240
+in_size = 299 if file_name == 'inception' or file_name == 'xception' else 224
+
 # H1 Transform
 H1_transform = transforms.Compose([
-    transforms.CenterCrop(240),
-    transforms.Resize(224),
+    transforms.CenterCrop(crop_size),
+    transforms.Resize(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_H, cf.std_H)
 ])
 
 # G Transform
 G_transform = transforms.Compose([
-    transforms.CenterCrop(240),
-    transforms.Resize(224),
+    transforms.CenterCrop(crop_size),
+    transforms.Resize(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_G, cf.std_G)
 ])
 
 # M Transform
 M_transform = transforms.Compose([
-    transforms.CenterCrop(240),
-    transforms.Resize(224),
+    transforms.CenterCrop(crop_size),
+    transforms.Resize(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_M, cf.std_M)
 ])
 
 # N Transform
 N_transform = transforms.Compose([
-    transforms.CenterCrop(240),
-    transforms.Resize(224),
+    transforms.CenterCrop(crop_size),
+    transforms.Resize(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_N, cf.std_N)
 ])
 
 # L Transform
 L_transform = transforms.Compose([
-    transforms.CenterCrop(240),
-    transforms.Resize(224),
+    transforms.CenterCrop(crop_size),
+    transforms.Resize(in_size),
     transforms.ToTensor(),
     transforms.Normalize(cf.mean_L, cf.std_L)
 ])
@@ -303,7 +310,6 @@ with open(output_file, 'w') as csvfile:
                     inf_class = M_classes[index]
 
                     if inf_class == 'WBC_Lymphocyte':
-                        print("L!")
                         cnt_L += 1
                         if L_transform is not None:
                             image = L_transform(org_image)
@@ -338,8 +344,4 @@ with open(output_file, 'w') as csvfile:
 print(float(tot-errors)/tot)
 print(float(cnt_N-cnt_N_errors)/cnt_N)
 print(float(cnt_L-cnt_L_errors)/cnt_L)
-errors = errors - cnt_N_errors - cnt_L_errors
-tot = tot - cnt_N - cnt_L
-
-print(float(tot-errors)/tot)
-
+print(float((tot-cnt_N-cnt_L)-(errors-cnt_N_errors-cnt_L_errors))/(tot-cnt_N-cnt_L))

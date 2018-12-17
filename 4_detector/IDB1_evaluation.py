@@ -89,20 +89,22 @@ def bbox(base, original_img, mask_img, model):
     closing = cv2.morphologyEx(threshed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
 
     _, contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    copy_img = original_img[:]
 
-    for cnt in contours:
+    for cnt_idx, cnt in enumerate(contours):
         area = cv2.contourArea(cnt)
         x, y, w, h = cv2.boundingRect(cnt)
-        crop = original_img[y:y+h, x:x+w]
+        crop = copy_img[y:y+h, x:x+w]
+        save_crop = crop
         crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
 
         idx, score = inference_crop(model, crop)
         answ = dset_classes[idx]
 
+        cv2.imwrite("./results/ALL_IDB1/Granulocytes_vs_Mononuclear/cropped/%s-%d.png" %(base, cnt_idx), save_crop)
         cv2.rectangle(original_img, (x,y), (x+w, y+h), (0,255,0), 2)
         cv2.putText(original_img, "%s = %s" %(answ, str(score)), (x,y),
             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
-        cv2.imwrite("./results/ALL_IDB1/Granulocytes_vs_Mononuclear/cropped/%s-%d.png", crop)
 
     return original_img
 
