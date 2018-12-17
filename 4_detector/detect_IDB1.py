@@ -197,11 +197,11 @@ if __name__ == "__main__":
         print("| Checking Activated Regions for " + dset_classes[WBC_id] + "...")
 
     try:
-        file_name = cf.test_dir + os.sep + ('ALL_IDB1/im/Im%03d_1.jpg' %(args.testNumber))
+        file_name = cf.test_dir + os.sep + ('ALL_IDB1/im/Im%03d_1.png' %(args.testNumber))
         original_image = cv2.imread(file_name)
         PIL_image = Image.open(file_name)
     except FileNotFoundError:
-        file_name = cf.test_dir + os.sep + ('ALL_IDB1/im/Im%03d_0.jpg' %(args.testNumber))
+        file_name = cf.test_dir + os.sep + ('ALL_IDB1/im/Im%03d_0.png' %(args.testNumber))
         original_image = cv2.imread(file_name)
         PIL_image = Image.open(file_name)
     print("Reading %s..." %file_name)
