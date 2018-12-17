@@ -216,12 +216,7 @@ if __name__ == "__main__":
     pbar.start()
     progress = 0
 
-    #csvname = 'logs/TEST%d.csv' %(args.testNumber) if args.subtype == None else 'logs/TEST%d_%s.csv' %(args.testNumber, args.subtype)
-
-    #with open(csvname, 'w') as csvfile:
     fieldnames = ['location', 'prediction', 'score']
-    #writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    #writer.writeheader()
     for img in lst:
         if (img.size[0] == img.size[1]): # Only consider foursquare regions
             backg = np.asarray(img)
@@ -248,23 +243,10 @@ if __name__ == "__main__":
 
             if ('RBC' in dset_classes[idx[0]]  or probs[item_id] < 0.5):
                 heatmap_lst.append(np.uint8(np.zeros((224, 224))))
-            #elif ('Smudge' in dset_classes[idx[0]] and probs[item_id] < 0.7):
-            #    heatmap_lst.append(np.uint8(np.zeros((224, 224))))
             else:
-                #print(dset_classes[comp_idx], probs[item_id].cpu().numpy())
-                """
-                writer.writerow({
-                    'location': progress,
-                    'prediction': dset_classes[comp_idx],
-                    'score': probs[item_id][0]
-                })
-                """
-
                 # Grad-CAM
                 gcam.backward(idx=comp_idx) # Get gradients for the Top-1 label
                 output = gcam.generate(target_layer='layer4.2') # Needs more testout
-
-                #heatmap = cv2.cvtColor(np.uint8(output * 255.0), cv2.COLOR_GRAY2BGR)
                 heatmap = output
                 heatmap_lst.append(heatmap)
             pbar.update(progress)
@@ -305,9 +287,6 @@ if __name__ == "__main__":
                     check_and_mkdir('./results/ALL_IDB1/%s/masks/' %cf.name)
                     blank_canvas[blank_canvas > 1] = 1
                     blank_canvas = cv2.GaussianBlur(blank_canvas, (41,41), 0)
-                    #blank_canvas = softmax(blank_canvas)
-                    #blank_canvas = (blank_canvas - blank_canvas.min())/(blank_canvas.max()-blank_canvas.min())
-                    #blank_canvas /= blank_canvas.max()
                     blank_save = np.uint8(blank_canvas * 255.0)
 
                     if args.subtype == None:
